@@ -38,6 +38,15 @@ The extension has been updated to significantly reduce false positives:
 - Content-based filtering checks for ad-like characteristics
 - Elements with large amounts of text are less likely to be highlighted
 
+## Messaging Error Handling
+
+The extension now properly handles messaging errors that could occur when:
+- The popup is closed before a response is received
+- The content script is not available
+- Communication between popup and content script fails
+
+These errors are now caught and handled gracefully without showing console errors.
+
 ## Customizing Ad Detection
 
 The extension uses a combination of CSS selectors to identify ads. You can modify these selectors in `content.js`:

@@ -234,4 +234,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     highlightAds();
     sendResponse({status: "success"});
   }
+  // Return true to indicate asynchronous response
+  return true;
 });
