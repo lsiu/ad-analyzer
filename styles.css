@@ -1,0 +1,18 @@
+/* styles.css - Styles for highlighting ads */
+
+.ad-highlighter-border {
+  border: 2px dashed #ff0000 !important;
+  box-shadow: 0 0 5px rgba(255, 0, 0, 0.3) !important;
+  background-color: rgba(255, 0, 0, 0.05) !important;
+}
+
+/* Animation for extra visibility - more subtle */
+@keyframes ad-highlight-pulse {
+  0% { border-color: #ff0000; box-shadow: 0 0 5px rgba(255, 0, 0, 0.3); }
+  50% { border-color: #ff6666; box-shadow: 0 0 8px rgba(255, 0, 0, 0.4); }
+  100% { border-color: #ff0000; box-shadow: 0 0 5px rgba(255, 0, 0, 0.3); }
+}
+
+.ad-highlighter-border {
+  animation: ad-highlight-pulse 3s infinite;
+}
