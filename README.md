@@ -23,10 +23,17 @@ The extension uses more specific CSS selectors and verification methods to ident
 - Google AdSense elements (using specific classes like "adsbygoogle")
 - DoubleClick ads and other known ad network iframes
 - Taboola and Outbrain widgets
+- The Trade Desk ads (adsrvr.org domain)
 - Elements with ad-related data attributes (data-ad-slot, data-ad-client)
 - Elements containing "Advertisement" or "Sponsored" text with appropriate dimensions
 
 The extension now uses a verification function to reduce false positives by checking multiple ad indicators before highlighting an element.
+
+## Color Coding
+
+Ads are highlighted with different colors based on their source:
+- Regular ads: Red border with subtle pulsing animation
+- The Trade Desk ads: Blue border with subtle pulsing animation
 
 ## Manual Refresh
 

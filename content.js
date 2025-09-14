@@ -15,6 +15,9 @@ const adSelectors = [
   'iframe[src*="ads.pubmatic.com"]',
   'iframe[src*="adnxs.com"]',
   
+  // The Trade Desk
+  'iframe[src*="adsrvr.org"]',
+  
   // Taboola and Outbrain (more specific)
   '[class*="taboola" i][class*="placement" i]',
   '[class*="outbrain" i][class*="widget" i]',
@@ -44,14 +47,21 @@ function highlightAds() {
   console.log('=== Ad Highlighter Run ===');
   
   // Remove existing highlights first
-  const existingHighlights = document.querySelectorAll('.ad-highlighter-border');
-  existingHighlights.forEach(el => {
+  const existingRedHighlights = document.querySelectorAll('.ad-highlighter-border');
+  existingRedHighlights.forEach(el => {
     el.classList.remove('ad-highlighter-border');
   });
-  console.log(`Removed ${existingHighlights.length} existing highlights`);
+  
+  const existingBlueHighlights = document.querySelectorAll('.ad-highlighter-trade-border');
+  existingBlueHighlights.forEach(el => {
+    el.classList.remove('ad-highlighter-trade-border');
+  });
+  
+  console.log(`Removed ${existingRedHighlights.length} red highlights and ${existingBlueHighlights.length} blue highlights`);
   
   // Find and highlight ads
   const ads = new Set();
+  const tradeDeskAds = new Set();
   
   adSelectors.forEach(selector => {
     try {
@@ -63,8 +73,14 @@ function highlightAds() {
       elements.forEach(el => {
         // Verify it's actually an ad before highlighting
         if (isAdElement(el)) {
-          console.log(`Adding element:`, el);
-          ads.add(el);
+          // Check if it's a The Trade Desk ad
+          if (isTradeDeskAd(el)) {
+            console.log(`Adding Trade Desk ad:`, el);
+            tradeDeskAds.add(el);
+          } else {
+            console.log(`Adding regular ad:`, el);
+            ads.add(el);
+          }
         }
       });
     } catch (e) {
@@ -78,8 +94,14 @@ function highlightAds() {
     if (el.textContent && el.textContent.trim().toLowerCase() === 'advertisement') {
       const parent = el.parentElement;
       if (parent && isAdElement(parent)) {
-        console.log('Found "Advertisement" text element:', parent);
-        ads.add(parent);
+        // Check if it's a The Trade Desk ad
+        if (isTradeDeskAd(parent)) {
+          console.log('Found Trade Desk "Advertisement" text element:', parent);
+          tradeDeskAds.add(parent);
+        } else {
+          console.log('Found "Advertisement" text element:', parent);
+          ads.add(parent);
+        }
       }
     }
   });
@@ -89,7 +111,11 @@ function highlightAds() {
     ad.classList.add('ad-highlighter-border');
   });
   
-  console.log(`Highlighted ${ads.size} ads on the page`);
+  tradeDeskAds.forEach(ad => {
+    ad.classList.add('ad-highlighter-trade-border');
+  });
+  
+  console.log(`Highlighted ${ads.size} regular ads and ${tradeDeskAds.size} Trade Desk ads on the page`);
   console.log('=== End Run ===');
 }
 
@@ -122,14 +148,14 @@ function isAdElement(element) {
   
   // Check if element has ad-like characteristics
   const hasAdText = element.textContent && 
-    (element.textContent.toLowerCase().includes('advertisement') ||
-     element.textContent.toLowerCase().includes('sponsored'));
+  (element.textContent.toLowerCase().includes('advertisement') ||
+  element.textContent.toLowerCase().includes('sponsored'));
   
   // Check if element contains iframe from ad networks
   const adIframes = element.querySelectorAll(
     'iframe[src*="doubleclick.net"], iframe[src*="googlesyndication.com"], ' +
     'iframe[src*="amazon-adsystem.com"], iframe[src*="ads.pubmatic.com"], ' +
-    'iframe[src*="adnxs.com"]'
+    'iframe[src*="adnxs.com"], iframe[src*="adsrvr.org"]'
   );
   
   // More specific ad verification:
@@ -151,10 +177,38 @@ function isAdElement(element) {
   // - It contains ad iframes, OR
   // - It has ad-specific classes, OR
   // - It contains ad text and has appropriate dimensions
-  return hasAdDataAttributes || 
+  isAd = hasAdDataAttributes || 
          adIframes.length > 0 || 
          hasAdClasses || 
          (hasAdText && rect.width > 100 && rect.height > 50);
+  if (isAd) {
+    console.log(
+      'isAdElement true for element:',
+      element,
+      {
+      hasAdDataAttributes,
+      adIframesCount: adIframes.length,
+      hasAdClasses,
+      hasAdText,
+      rect: { width: rect.width, height: rect.height }
+      }
+    );
+  }
+  return isAd;
+}
+
+// Helper function to check if an ad is from The Trade Desk
+function isTradeDeskAd(element) {
+  // Check if element contains iframe from The Trade Desk
+  const tradeDeskIframes = element.querySelectorAll('iframe[src*="adsrvr.org"]');
+  if (tradeDeskIframes.length > 0) {
+    return true;
+  }
+  
+  // Check if element has The Trade Desk specific attributes or classes
+  // (Add any specific identifiers if known)
+  
+  return false;
 }
 
 // Run immediately when the script loads

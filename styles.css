@@ -1,9 +1,17 @@
 /* styles.css - Styles for highlighting ads */
 
+/* Regular ads (red) */
 .ad-highlighter-border {
   border: 2px dashed #ff0000 !important;
   box-shadow: 0 0 5px rgba(255, 0, 0, 0.3) !important;
   background-color: rgba(255, 0, 0, 0.05) !important;
+}
+
+/* The Trade Desk ads (blue) */
+.ad-highlighter-trade-border {
+  border: 2px dashed #0000ff !important;
+  box-shadow: 0 0 5px rgba(0, 0, 255, 0.3) !important;
+  background-color: rgba(0, 0, 255, 0.05) !important;
 }
 
 /* Animation for extra visibility - more subtle */
@@ -13,6 +21,16 @@
   100% { border-color: #ff0000; box-shadow: 0 0 5px rgba(255, 0, 0, 0.3); }
 }
 
+@keyframes ad-highlight-trade-pulse {
+  0% { border-color: #0000ff; box-shadow: 0 0 5px rgba(0, 0, 255, 0.3); }
+  50% { border-color: #6666ff; box-shadow: 0 0 8px rgba(0, 0, 255, 0.4); }
+  100% { border-color: #0000ff; box-shadow: 0 0 5px rgba(0, 0, 255, 0.3); }
+}
+
 .ad-highlighter-border {
   animation: ad-highlight-pulse 3s infinite;
+}
+
+.ad-highlighter-trade-border {
+  animation: ad-highlight-trade-pulse 3s infinite;
 }
