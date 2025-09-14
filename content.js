@@ -1,213 +1,86 @@
 // content.js - Content script to detect and highlight ads
 
-// More specific selectors for ad elements to reduce false positives
+// More specific selectors to reduce false positives
 const adSelectors = [
-  // Google AdSense (highly specific)
-  '[class*="adsbygoogle"]',
+  // Google AdSense (more specific)
+  '.adsbygoogle',
+  '[data-ad-client]',
+  '[data-ad-slot]',
+  '[data-google-query-id]',
   
-  // DoubleClick and other ad network iframes (highly specific)
+  // Common ad networks (exact matches)
   'iframe[src*="doubleclick.net"]',
   'iframe[src*="googlesyndication.com"]',
-  'iframe[src*="googletagservices.com"]',
   'iframe[src*="amazon-adsystem.com"]',
   'iframe[src*="ads.pubmatic.com"]',
   'iframe[src*="adnxs.com"]',
-  'iframe[src*="rubiconproject.com"]',
   
-  // Common ad container classes (more specific)
-  '[class*="ad-container"]',
-  '[class*="ad_wrapper"]',
-  '[class*="ad-banner"]',
-  '[class*="ad-sidebar"]',
-  '[class*="ad-header"]',
-  '[class*="ad-footer"]',
-  '[class*="advertisement"]',
-  '[class*="sponsored-content"]',
-  '[class*="sponsored-link"]',
+  // Taboola and Outbrain (more specific)
+  '[class*="taboola" i][class*="placement" i]',
+  '[class*="outbrain" i][class*="widget" i]',
+  '[data-ob-mark]',
   
-  // Common ad container IDs (more specific)
-  '[id*="ad-container"]',
-  '[id*="ad-wrapper"]',
-  '[id*="ad-banner"]',
-  '[id*="advertisement"]',
-  '[id*="google-ads"]',
-  '[id*="sponsored"]',
+  // More specific sponsored/advertisement indicators
+  '[class*="sponsored-content" i]',
+  '[class*="ad-container" i]',
+  '[class*="ad-wrapper" i]',
+  '[id*="ad-container" i]',
+  '[id*="ad-wrapper" i]',
   
-  // Data attributes specific to ads
-  '[data-ad-slot]',
-  '[data-ad-format]',
-  '[data-ad-client]',
-  '[data-google-query-id]',
+  // Common ad unit classes/ids
+  '[class*="adunit" i]',
+  '[id*="adunit" i]',
+  '[class*="ad-box" i]',
+  '[id*="ad-box" i]',
   
-  // Common ad dimensions (very specific selectors)
-  'div[style*="width: 300px"][style*="height: 250px"]',
-  'div[style*="width: 728px"][style*="height: 90px"]',
-  'div[style*="width: 160px"][style*="height: 600px"]',
-  'div[style*="width: 300px"][style*="height: 600px"]',
-  
-  // Common ad placements
-  '[class*="leaderboard"]',
-  '[class*="billboard"]',
-  '[class*="skyscraper"]',
-  '[class*="rectangle"]'
+  // Standard ad sizes in more specific contexts
+  'div[data-ad-width="300"][data-ad-height="250"]',
+  'div[data-ad-width="728"][data-ad-height="90"]',
+  'div[data-ad-width="160"][data-ad-height="600"]'
 ];
-
-// Blacklist of elements that are commonly mistaken for ads
-const blacklistSelectors = [
-  // Navigation elements
-  'nav *',
-  '[role="navigation"] *',
-  '[class*="nav" i]',
-  '[class*="menu" i]',
-  
-  // Header/footer elements
-  'header *',
-  'footer *',
-  
-  // Content elements that shouldn't be highlighted
-  '[class*="read-more"]',
-  '[class*="related"]',
-  '[class*="breadcrumb"]',
-  '[class*="pagination"]',
-  '[class*="social"]',
-  '[class*="share"]',
-  '[class*="comment"]',
-  '[class*="sidebar" i]:not([class*="ad" i])',
-  '[class*="widget" i]:not([class*="ad" i])',
-  
-  // Common UI elements
-  'button',
-  'input',
-  'select',
-  'textarea',
-  'label',
-  
-  // Content containers
-  'article',
-  'main',
-  '[role="main"]',
-  '[class*="content" i]:not([class*="ad" i])',
-  '[class*="post" i]:not([class*="ad" i])',
-  '[class*="article" i]:not([class*="ad" i])'
-];
-
-// Function to check if element is in blacklist
-function isBlacklisted(element) {
-  for (const selector of blacklistSelectors) {
-    if (element.matches && element.matches(selector)) {
-      return true;
-    }
-    if (element.closest && element.closest(selector)) {
-      return true;
-    }
-  }
-  return false;
-}
-
-// Function to check if element is likely an ad based on content
-function isLikelyAd(element) {
-  // Check for common ad text
-  const text = element.textContent.toLowerCase();
-  const adKeywords = [
-    'advertisement', 'advertiser', 'sponsored', 'promotion',
-    'promoted', 'banner ad', 'side ad', 'google ad'
-  ];
-  
-  // Check if element has ad-like text
-  for (const keyword of adKeywords) {
-    if (text.includes(keyword)) {
-      return true;
-    }
-  }
-  
-  // Check for common ad attributes
-  if (element.hasAttribute('data-ad-client') || 
-      element.hasAttribute('data-ad-slot') || 
-      element.hasAttribute('data-google-query-id')) {
-    return true;
-  }
-  
-  // Check for iframes with ad URLs
-  const iframes = element.querySelectorAll('iframe');
-  const adDomains = [
-    'doubleclick.net', 'googlesyndication.com', 'googletagservices.com',
-    'amazon-adsystem.com', 'ads.pubmatic.com', 'adnxs.com', 'rubiconproject.com'
-  ];
-  
-  for (const iframe of iframes) {
-    for (const domain of adDomains) {
-      if (iframe.src && iframe.src.includes(domain)) {
-        return true;
-      }
-    }
-  }
-  
-  return false;
-}
 
 // Function to highlight ads
 function highlightAds() {
+  console.log('=== Ad Highlighter Run ===');
+  
   // Remove existing highlights first
   const existingHighlights = document.querySelectorAll('.ad-highlighter-border');
   existingHighlights.forEach(el => {
     el.classList.remove('ad-highlighter-border');
   });
+  console.log(`Removed ${existingHighlights.length} existing highlights`);
   
   // Find and highlight ads
-  const ads = new Set(); // Use a Set to avoid duplicates
+  const ads = new Set();
   
   adSelectors.forEach(selector => {
     try {
       const elements = document.querySelectorAll(selector);
+      if (elements.length > 0) {
+        console.log(`Selector "${selector}" matched ${elements.length} elements`);
+      }
+      
       elements.forEach(el => {
-        // Skip elements that are too small
-        const rect = el.getBoundingClientRect();
-        if (rect.width < 50 || rect.height < 50) {
-          return;
+        // Verify it's actually an ad before highlighting
+        if (isAdElement(el)) {
+          console.log(`Adding element:`, el);
+          ads.add(el);
         }
-        
-        // Skip elements that are too large (likely content areas)
-        if (rect.width > 1000 || rect.height > 1000) {
-          return;
-        }
-        
-        // Skip blacklisted elements
-        if (isBlacklisted(el)) {
-          return;
-        }
-        
-        // Skip elements with a lot of text (likely content)
-        const textLength = el.textContent.trim().length;
-        if (textLength > 500 && !isLikelyAd(el)) {
-          return;
-        }
-        
-        // Skip elements that are likely navigation or UI components
-        const childCount = el.childElementCount;
-        if (childCount > 20 && !isLikelyAd(el)) {
-          return;
-        }
-        
-        // Additional filtering for elements with class/id containing "ad"
-        // but are likely false positives
-        const className = el.className || '';
-        const id = el.id || '';
-        const classAndId = (className + ' ' + id).toLowerCase();
-        
-        // Skip elements that are likely not ads despite matching selectors
-        if (classAndId.includes('navigation') || 
-            classAndId.includes('bread') || 
-            classAndId.includes('social') ||
-            classAndId.includes('related') ||
-            classAndId.includes('comment')) {
-          return;
-        }
-        
-        ads.add(el);
       });
     } catch (e) {
-      // Ignore invalid selectors
       console.debug('Invalid selector:', selector);
+    }
+  });
+  
+  // Special case: Look for elements containing "Advertisement" text
+  const allElements = document.querySelectorAll('*');
+  allElements.forEach(el => {
+    if (el.textContent && el.textContent.trim().toLowerCase() === 'advertisement') {
+      const parent = el.parentElement;
+      if (parent && isAdElement(parent)) {
+        console.log('Found "Advertisement" text element:', parent);
+        ads.add(parent);
+      }
     }
   });
   
@@ -217,16 +90,80 @@ function highlightAds() {
   });
   
   console.log(`Highlighted ${ads.size} ads on the page`);
+  console.log('=== End Run ===');
+}
+
+// Helper function to verify if an element is actually an ad
+function isAdElement(element) {
+  // Basic size filtering
+  const rect = element.getBoundingClientRect();
+  if (rect.width < 20 || rect.height < 20) {
+    return false;
+  }
+  
+  if (rect.width > 2000 || rect.height > 2000) {
+    return false;
+  }
+  
+  // Skip obvious content elements
+  if (element.matches('article, main, [role="main"]')) {
+    return false;
+  }
+  
+  // Skip navigation elements
+  if (element.closest('nav, [role="navigation"]')) {
+    return false;
+  }
+  
+  // Skip header/footer elements
+  if (element.closest('header, footer')) {
+    return false;
+  }
+  
+  // Check if element has ad-like characteristics
+  const hasAdText = element.textContent && 
+    (element.textContent.toLowerCase().includes('advertisement') ||
+     element.textContent.toLowerCase().includes('sponsored'));
+  
+  // Check if element contains iframe from ad networks
+  const adIframes = element.querySelectorAll(
+    'iframe[src*="doubleclick.net"], iframe[src*="googlesyndication.com"], ' +
+    'iframe[src*="amazon-adsystem.com"], iframe[src*="ads.pubmatic.com"], ' +
+    'iframe[src*="adnxs.com"]'
+  );
+  
+  // More specific ad verification:
+  // 1. Has data attributes typical of ads
+  const hasAdDataAttributes = element.hasAttribute('data-ad-slot') || 
+                              element.hasAttribute('data-ad-client') ||
+                              element.hasAttribute('data-google-query-id');
+  
+  // 2. Has common ad classes
+  const className = element.className || '';
+  const hasAdClasses = typeof className === 'string' && 
+    (className.includes('ad-container') || 
+     className.includes('ad-wrapper') || 
+     className.includes('adsbygoogle'));
+  
+  // Element is likely an ad if:
+  // - It has ad-specific data attributes, OR
+  // - It contains ad iframes, OR
+  // - It has ad-specific classes, OR
+  // - It contains ad text and has appropriate dimensions
+  return hasAdDataAttributes || 
+         adIframes.length > 0 || 
+         hasAdClasses || 
+         (hasAdText && rect.width > 100 && rect.height > 50);
 }
 
 // Run immediately when the script loads
 highlightAds();
 
 // Run again after a delay to catch dynamically loaded ads
-setTimeout(highlightAds, 3000);
+setTimeout(highlightAds, 2000);
 
 // Run periodically to catch ads loaded after page load
-setInterval(highlightAds, 10000);
+setInterval(highlightAds, 5000);
 
 // Listen for messages from popup
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {

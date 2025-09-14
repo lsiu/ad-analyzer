@@ -19,14 +19,14 @@ This Chrome extension highlights ads on web pages with a red border to make them
 
 ## How It Works
 
-The extension uses common CSS selectors to identify potential ad elements on web pages, including:
-- Elements with "ad", "advert", or "sponsor" in their class or ID names
-- Google AdSense elements
-- DoubleClick ads
-- Iframes from known ad networks
-- Elements with ad-related data attributes
+The extension uses more specific CSS selectors and verification methods to identify ad elements on web pages, including:
+- Google AdSense elements (using specific classes like "adsbygoogle")
+- DoubleClick ads and other known ad network iframes
+- Taboola and Outbrain widgets
+- Elements with ad-related data attributes (data-ad-slot, data-ad-client)
+- Elements containing "Advertisement" or "Sponsored" text with appropriate dimensions
 
-When an ad is detected, it's highlighted with a red border and a subtle pulsing animation.
+The extension now uses a verification function to reduce false positives by checking multiple ad indicators before highlighting an element.
 
 ## Manual Refresh
 
