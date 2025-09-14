@@ -140,10 +140,11 @@ function isAdElement(element) {
   
   // 2. Has common ad classes
   const className = element.className || '';
-  const hasAdClasses = typeof className === 'string' && 
-    (className.includes('ad-container') || 
-     className.includes('ad-wrapper') || 
-     className.includes('adsbygoogle'));
+  const hasAdClasses = typeof className === 'string' && (
+    /\bad-container\b/.test(className) ||
+    /\bad-wrapper\b/.test(className) ||
+    /\badsbygoogle\b/.test(className)
+  );
   
   // Element is likely an ad if:
   // - It has ad-specific data attributes, OR
