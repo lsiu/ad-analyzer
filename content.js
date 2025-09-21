@@ -7,6 +7,7 @@ const adSelectors = [
   '[data-ad-client]',
   '[data-ad-slot]',
   '[data-google-query-id]',
+  'iframe[id^=google_ads]',
   
   // Common ad networks (exact matches)
   'iframe[src*="doubleclick.net"]',
