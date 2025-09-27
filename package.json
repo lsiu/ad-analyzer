@@ -4,7 +4,7 @@
   "description": "A Chrome extension that highlights ads on web pages with colored borders to make them easily identifiable.",
   "main": "dist/content.js",
   "scripts": {
-    "build": "webpack --config webpack.prod.js && node build-extension.js",
+    "build": "webpack --config webpack.prod.js",
     "dev": "webpack --config webpack.dev.js",
     "watch": "webpack --config webpack.dev.js --watch",
     "package": "npm run build && cd dist && zip -r ../ad-highlighter-extension.zip .",
@@ -19,6 +19,7 @@
   "license": "ISC",
   "devDependencies": {
     "clean-webpack-plugin": "^4.0.0",
+    "copy-webpack-plugin": "^13.0.1",
     "webpack": "^5.101.3",
     "webpack-cli": "^6.0.1",
     "webpack-merge": "^6.0.1"

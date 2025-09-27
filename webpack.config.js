@@ -1,5 +1,6 @@
 const path = require('path');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   entry: {
@@ -11,7 +12,15 @@ module.exports = {
     filename: '[name].js'
   },
   plugins: [
-    new CleanWebpackPlugin()
+    new CleanWebpackPlugin(),
+    new CopyWebpackPlugin({
+      patterns: [
+        { from: 'manifest.json', to: '.' },
+        { from: 'popup.html', to: '.' },
+        { from: 'icons', to: 'icons' },
+        { from: 'styles.css', to: '.' }
+      ]
+    })
   ],
   optimization: {
     splitChunks: {
