@@ -42,3 +42,16 @@ If ads aren't being detected properly, you can click the extension icon and use 
 ## Customization
 
 You can modify the highlighting style by editing `styles.css`. The animation and border properties can be adjusted to your preference.
+
+## Building the Extension
+
+This extension now uses webpack to bundle and optimize the JavaScript files. For more information on the build process, see [BUILDING.md](BUILDING.md).
+
+### Quick Build Commands
+
+- `npm run build` - Builds the extension for production (minified)
+- `npm run dev` - Builds the extension for development (with source maps)
+- `npm run watch` - Watches for changes and rebuilds automatically
+- `npm run package` - Creates a zip file for distribution
+
+All bundled files are output to the `dist/` directory, which can be loaded directly into Chrome.
