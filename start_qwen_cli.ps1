@@ -1,0 +1,1 @@
+docker run --rm -it -v .:/src ghcr.io/qwenlm/qwen-code:latest sh -c "cd /src && qwen"
