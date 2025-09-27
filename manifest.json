@@ -4,7 +4,11 @@
   "version": "1.0",
   "description": "Highlights ads on web pages with a red border",
   "permissions": [
-    "activeTab"
+    "activeTab",
+    "webRequest"
+  ],
+  "host_permissions": [
+    "<all_urls>"
   ],
   "web_accessible_resources": [
     {
@@ -12,6 +16,9 @@
       "matches": ["<all_urls>"]
     }
   ],
+  "background": {
+    "service_worker": "background.js"
+  },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
@@ -19,6 +26,7 @@
       "css": ["styles.css"]
     }
   ],
+  "devtools_page": "openrtb_devtools.html",
   "action": {
     "default_popup": "popup.html",
     "default_title": "Ad Highlighter"
