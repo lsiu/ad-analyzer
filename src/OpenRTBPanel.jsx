@@ -44,6 +44,41 @@ const OpenRTBPanel = () => {
     }
   };
 
+  // Function to extract bid price from request body (looking for any bid-related info)
+  const extractBidInfoFromRequest = (requestBody) => {
+    try {
+      const reqObj = typeof requestBody === 'string' ? JSON.parse(requestBody) : requestBody;
+      const bidInfo = {
+        hasImpressions: false,
+        impressionCount: 0,
+        hasBids: false,
+        hasPriceInfo: false,
+        bidPrices: []
+      };
+
+      if (reqObj && reqObj.imp) {
+        bidInfo.hasImpressions = true;
+        bidInfo.impressionCount = reqObj.imp.length;
+
+        // Look for any bid-related information in impressions
+        for (const imp of reqObj.imp) {
+          if (imp.bidfloor) {
+            bidInfo.hasPriceInfo = true;
+            bidInfo.bidPrices.push(imp.bidfloor);
+          }
+        }
+      }
+
+      // Look for other OpenRTB specific fields
+      if (reqObj.id) bidInfo.hasBids = true;
+
+      return bidInfo;
+    } catch (e) {
+      console.error('Error parsing request for bid info:', e);
+      return null;
+    }
+  };
+
   // Helper function to find matching responses for each request
   const getMatchingResponses = (requestUrl) => {
     return responses.filter(resp => resp.url === requestUrl);
@@ -55,6 +90,8 @@ const OpenRTBPanel = () => {
       <div id="bids">
         {requests.map((req, i) => {
           const matchingResponses = getMatchingResponses(req.url);
+          const bidInfo = extractBidInfoFromRequest(req.body);
+          
           return (
             <div key={i} className="bid" style={{ borderBottom: '1px solid #ccc', marginBottom: 8, paddingBottom: 8 }}>
               <div>
@@ -66,18 +103,40 @@ const OpenRTBPanel = () => {
               <div>
                 Time: {new Date(req.time).toLocaleTimeString()}
               </div>
+              
+              {/* Expandable bid details */}
+              <details style={{ marginBottom: '8px' }}>
+              <summary style={{ cursor: 'pointer', fontWeight: 'bold', padding: '4px 0' }}>
+                Show Bid Details
+              </summary>
+              <div style={{ marginBottom: '8px', padding: '4px 8px', backgroundColor: '#f9f9f9', borderRadius: '3px' }}>
+                <strong>Bid Info:</strong><br />
+                {bidInfo && (
+                <>
+                  {bidInfo.hasImpressions && `Impressions: ${bidInfo.impressionCount}`}<br />
+                  {bidInfo.bidPrices.length > 0 && `Bid Floors: ${bidInfo.bidPrices.map(p => `${p.toFixed(2)}`).join(', ')}`}
+                </>
+                )}
+              </div>
               <div>
-                <pre style={{ background: '#f5f5f5', padding: 8, overflowX: 'auto' }}>
-                  {formatJson(req.body)}
+                <pre style={{ background: '#f5f5f5', padding: 8, overflowX: 'auto', maxHeight: '200px', overflowY: 'auto' }}>
+                {formatJson(req.body)}
                 </pre>
               </div>
+              </details>
               {matchingResponses.length > 0 && matchingResponses.map((resp, j) => (
-                <div key={j} className="response" style={{ color: '#007700' }}>
-                  <strong>Response #{j + 1}:</strong><br />
-                  Status: {resp.statusCode}<br />
-                  Time: {new Date(resp.time).toLocaleTimeString()}
+                <div key={j} className="response" style={{ color: '#007700', marginTop: '10px' }}>
+                <strong>Response #{j + 1}:</strong><br />
+                Status: {resp.statusCode}<br />
+                Time: {new Date(resp.time).toLocaleTimeString()}<br />
                 </div>
               ))}
+              {/* Information about what would normally be in the response */}
+              {matchingResponses.length > 0 && (
+                <div style={{ fontStyle: 'italic', fontSize: '14px', color: '#666', marginTop: '5px' }}>
+                Note: Full bid response details (including bid prices) would typically appear here in a complete implementation.
+                </div>
+              )}
             </div>
           );
         })}

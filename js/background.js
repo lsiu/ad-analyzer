@@ -52,6 +52,8 @@ chrome.webRequest.onCompleted.addListener(
         // Only store response if it matches a previously detected OpenRTB bid request URL
         const matchedRequest = bidRequests.find(req => req.url === details.url);
         if (matchedRequest) {
+            // Try to get response body if possible (this is limited by Chrome's API)
+            // For now, we'll just store the basic response info
             bidResponses.push({
                 url: details.url,
                 statusCode: details.statusCode,
@@ -61,7 +63,7 @@ chrome.webRequest.onCompleted.addListener(
         // No push message; data is available via getBidData request
     },
     { urls: ["<all_urls>"] },
-    []
+    ["responseHeaders"]
 );
 
 // Expose bidRequests and bidResponses for devtools using long-lived port
