@@ -1,1 +1,1 @@
-docker run --rm -it -v .:/src ghcr.io/qwenlm/qwen-code:latest sh -c "cd /src && qwen"
+docker compose run --remove-orphans -i qwen 

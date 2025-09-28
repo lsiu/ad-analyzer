@@ -1,0 +1,14 @@
+services:
+  qwen:
+    build:
+      dockerfile_inline: |
+        FROM ghcr.io/qwenlm/qwen-code:latest
+        RUN npm install -g @qwen-code/qwen-code@0.0.13
+    container_name: qwen
+    working_dir: /adhighlighter
+    stdin_open: true
+    tty: true
+    volumes:
+      - .:/adhighlighter
+      - .qwen:/root/.qwen
+    entrypoint: qwen
