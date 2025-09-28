@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Ad Highlighter",
+  "name": "Ad Analyzer",
   "version": "1.0",
-  "description": "Highlights ads on web pages with a red border",
+  "description": "Analyzes ads on web pages with highlighting and captures auction details",
   "permissions": [
     "activeTab",
     "webRequest",
@@ -30,7 +30,7 @@
   "devtools_page": "openrtb_devtools.html",
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Ad Highlighter"
+    "default_title": "Ad Analyzer"
   },
   "icons": {
     "16": "icons/icon16.png",

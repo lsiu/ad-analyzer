@@ -5,10 +5,10 @@ services:
         FROM ghcr.io/qwenlm/qwen-code:latest
         RUN npm install -g @qwen-code/qwen-code@0.0.13
     container_name: qwen
-    working_dir: /adhighlighter
+    working_dir: /adAnalyzer
     stdin_open: true
     tty: true
     volumes:
-      - .:/adhighlighter
+      - .:/adAnalyzer
       - .qwen:/root/.qwen
     entrypoint: qwen
