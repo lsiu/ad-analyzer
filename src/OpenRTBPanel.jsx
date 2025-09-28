@@ -64,7 +64,7 @@ const OpenRTBPanel = () => {
         for (const imp of reqObj.imp) {
           if (imp.bidfloor) {
             bidInfo.hasPriceInfo = true;
-            bidInfo.bidPrices.push(imp.bidfloor);
+            bidInfo.bidPrices.push({price: imp.bidfloor, currency: imp.bidfloorcur});
           }
         }
       }
@@ -124,44 +124,44 @@ const OpenRTBPanel = () => {
         {requests.map((req, i) => {
           const resp = getMatchingResponse(req.requestId);
           const bidInfo = extractBidInfoFromRequest(req.body);
+          const bids = resp ? extractBidInfoFromResponse(resp.body) : null;
           
           return (
             <div key={i} className="bid" style={{ borderBottom: '1px solid #ccc', marginBottom: 8, paddingBottom: 8 }}>
-              <div>
-                <strong>Request #{i + 1}</strong>
-              </div>
-              <div>
-                URL: {req.url}
-              </div>
-              <div>
-                Time: {new Date(req.time).toLocaleTimeString()}
-              </div>
+              <div><strong>Request #{i + 1}</strong></div>
+              <div style={{color: req.url?.includes('adsrvr.org')?'#0000cc':'auto'}}>URL: {req.url}</div>
+              <div>Time: {new Date(req.time).toLocaleTimeString()}</div>
+              {bidInfo && (
+              <>
+                {bidInfo.hasImpressions && `Impressions: ${bidInfo.impressionCount}`}<br />
+                {bidInfo.bidPrices.length > 0 && `Bid Floors: ${bidInfo.bidPrices.map(p => `${p.price.toFixed(2)} ${p.currency}`).join(', ')}`}
+              </>
+              )}
               
               {/* Expandable bid details */}
               <details style={{ marginBottom: '8px' }}>
               <summary style={{ cursor: 'pointer', fontWeight: 'bold', padding: '4px 0' }}>
                 Show Bid Request
               </summary>
-              <div style={{ marginBottom: '8px', padding: '4px 8px', backgroundColor: '#f9f9f9', borderRadius: '3px' }}>
-                <strong>Bid Info:</strong><br />
-                {bidInfo && (
-                <>
-                  {bidInfo.hasImpressions && `Impressions: ${bidInfo.impressionCount}`}<br />
-                  {bidInfo.bidPrices.length > 0 && `Bid Floors: ${bidInfo.bidPrices.map(p => `${p.toFixed(2)}`).join(', ')}`}
-                </>
-                )}
-              </div>
               <div>
                 <pre style={{ background: '#f5f5f5', padding: 8, overflowX: 'auto', maxHeight: '200px', overflowY: 'auto' }}>
                 {formatJson(req.body)}
                 </pre>
               </div>
               </details>
+
+              {/* Show response details if available */}
               {resp ? (
                 <div className="response" style={{ marginTop: '10px' }}>
-                <strong>Response (requestId):{resp.requestId}:</strong><br />
-                <div style={{ color: resp.statusCode === 200 ? '#007700': 'auto'}}>Status: {resp.statusCode}</div>
-                <div>Time: {new Date(resp.time).toLocaleTimeString()}</div>
+                  <strong>Response (requestId):{resp.requestId}:</strong><br />
+                  <div style={{ color: resp.statusCode === 200 ? '#007700': 'auto'}}>Status: {resp.statusCode}</div>
+                  <div>Time: {new Date(resp.time).toLocaleTimeString()}</div>
+                  { bids && (
+                    <>
+                      {bids.hasBids ? `Bids Received: ${bids.bidCount}` : 'No Bids Received'}<br />
+                      {bids.bidPrices.length > 0 && `Bid Prices: ${bids.bidPrices.map(p => p.toFixed(2)).join(', ')}`}<br />
+                    </>
+                  )}
                   <details style={{ marginBottom: '8px' }}>
                     <summary style={{ cursor: 'pointer', fontWeight: 'bold', padding: '4px 0' }}>
                       Show Bid Details
