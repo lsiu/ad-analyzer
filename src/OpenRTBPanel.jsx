@@ -124,19 +124,14 @@ const OpenRTBPanel = () => {
                 </pre>
               </div>
               </details>
-              {matchingResponses.length > 0 && matchingResponses.map((resp, j) => (
+              {matchingResponses.length > 0 && matchingResponses.filter((resp, j) => resp.requestId == req.requestId ).map((resp, j) => (
                 <div key={j} className="response" style={{ color: '#007700', marginTop: '10px' }}>
-                <strong>Response #{j + 1}:</strong><br />
+                <strong>Response (requestId):{resp.requestId}:</strong><br />
                 Status: {resp.statusCode}<br />
                 Time: {new Date(resp.time).toLocaleTimeString()}<br />
+                Response body: {resp.body}
                 </div>
               ))}
-              {/* Information about what would normally be in the response */}
-              {matchingResponses.length > 0 && (
-                <div style={{ fontStyle: 'italic', fontSize: '14px', color: '#666', marginTop: '5px' }}>
-                Note: Full bid response details (including bid prices) would typically appear here in a complete implementation.
-                </div>
-              )}
             </div>
           );
         })}

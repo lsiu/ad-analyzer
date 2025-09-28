@@ -5,7 +5,8 @@
   "description": "Highlights ads on web pages with a red border",
   "permissions": [
     "activeTab",
-    "webRequest"
+    "webRequest",
+    "debugger"
   ],
   "host_permissions": [
     "<all_urls>"
