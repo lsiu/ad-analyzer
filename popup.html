@@ -7,6 +7,7 @@
       width: 300px;
       padding: 20px;
       font-family: Arial, sans-serif;
+      margin: 0;
     }
     
     h1 {
@@ -45,14 +46,16 @@
       color: #3c763d;
       display: block;
     }
+    
+    .error {
+      background-color: #f2dede;
+      color: #a94442;
+      display: block;
+    }
   </style>
 </head>
 <body>
-  <h1>Ad Highlighter</h1>
-  <p>Ads on this page are highlighted with red borders.</p>
-  <button id="refresh">Refresh Ad Detection</button>
-  <div id="status" class="status"></div>
-  
-  <script src="dist/popup.js"></script>
+  <div id="root"></div>
+  <script src="popup.js"></script>
 </body>
 </html>
