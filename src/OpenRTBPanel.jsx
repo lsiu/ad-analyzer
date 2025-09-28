@@ -80,8 +80,41 @@ const OpenRTBPanel = () => {
   };
 
   // Helper function to find matching responses for each request
-  const getMatchingResponses = (requestUrl) => {
-    return responses.filter(resp => resp.url === requestUrl);
+  const getMatchingResponse = (requestId) => {
+    const matchResponses = responses.filter(resp => resp.requestId === requestId)
+    if (matchResponses.length > 1) {
+      console.warn(`Multiple responses found for requestId ${requestId}`);
+      return matchResponses[0]
+    } else if (matchResponses.length === 1) {
+      return matchResponses[0];
+    }
+    return null;
+  };
+
+  const extractBidInfoFromResponse = (responseBody) => {
+    try {
+      const respObj = typeof responseBody === 'string' ? JSON.parse(responseBody) : responseBody;
+      const bidInfo = { hasBids: false, bidCount: 0, bidPrices: [] };
+
+      if (respObj && respObj.seatbid) {
+        bidInfo.hasBids = true;
+        bidInfo.bidCount = respObj.seatbid.reduce((count, seat) => count + (seat.bid ? seat.bid.length : 0), 0);
+        for (const seat of respObj.seatbid) {
+          if (seat.bid) {
+            for (const bid of seat.bid) {
+              if (bid.price) {
+                bidInfo.bidPrices.push(bid.price);
+              }
+            }
+          }
+        }
+      }
+
+      return bidInfo;
+    } catch (e) {
+      console.error('Error parsing response for bid info:', e);
+      return null;
+    }
   };
 
   return (
@@ -89,7 +122,7 @@ const OpenRTBPanel = () => {
       <h2>OpenRTB Bid Requests & Responses (React)</h2>
       <div id="bids">
         {requests.map((req, i) => {
-          const matchingResponses = getMatchingResponses(req.url);
+          const resp = getMatchingResponse(req.requestId);
           const bidInfo = extractBidInfoFromRequest(req.body);
           
           return (
@@ -107,7 +140,7 @@ const OpenRTBPanel = () => {
               {/* Expandable bid details */}
               <details style={{ marginBottom: '8px' }}>
               <summary style={{ cursor: 'pointer', fontWeight: 'bold', padding: '4px 0' }}>
-                Show Bid Details
+                Show Bid Request
               </summary>
               <div style={{ marginBottom: '8px', padding: '4px 8px', backgroundColor: '#f9f9f9', borderRadius: '3px' }}>
                 <strong>Bid Info:</strong><br />
@@ -124,14 +157,23 @@ const OpenRTBPanel = () => {
                 </pre>
               </div>
               </details>
-              {matchingResponses.length > 0 && matchingResponses.filter((resp, j) => resp.requestId == req.requestId ).map((resp, j) => (
-                <div key={j} className="response" style={{ color: '#007700', marginTop: '10px' }}>
+              {resp ? (
+                <div className="response" style={{ marginTop: '10px' }}>
                 <strong>Response (requestId):{resp.requestId}:</strong><br />
-                Status: {resp.statusCode}<br />
-                Time: {new Date(resp.time).toLocaleTimeString()}<br />
-                Response body: {resp.body}
+                <div style={{ color: resp.statusCode === 200 ? '#007700': 'auto'}}>Status: {resp.statusCode}</div>
+                <div>Time: {new Date(resp.time).toLocaleTimeString()}</div>
+                  <details style={{ marginBottom: '8px' }}>
+                    <summary style={{ cursor: 'pointer', fontWeight: 'bold', padding: '4px 0' }}>
+                      Show Bid Details
+                    </summary>
+                    <div>
+                      <pre style={{ background: '#f5f5f5', padding: 8, overflowX: 'auto', maxHeight: '200px', overflowY: 'auto' }}>
+                        {formatJson(resp.body)}
+                      </pre>
+                    </div>
+                  </details>
                 </div>
-              ))}
+              ): null}
             </div>
           );
         })}

@@ -65,22 +65,6 @@ const PopupApp = () => {
     };
   }, []);
 
-  const formatJson = (str) => {
-    try {
-      // Try to parse the JSON string and format it
-      const obj = JSON.parse(str);
-      return JSON.stringify(obj, null, 2);
-    } catch (e) {
-      // Return the original string if parsing fails
-      return str;
-    }
-  };
-
-  // Helper function to find matching responses for each request
-  const getMatchingResponses = (requestUrl) => {
-    return bidResponses.filter(resp => resp.url === requestUrl);
-  };
-
   return (
     <div style={{ 
       fontFamily: 'Arial, sans-serif' 
