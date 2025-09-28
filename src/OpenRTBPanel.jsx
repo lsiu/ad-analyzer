@@ -117,9 +117,109 @@ const OpenRTBPanel = () => {
     }
   };
 
+  // Export functions
+  const exportAllData = () => {
+    const data = {
+      requests: requests,
+      responses: responses,
+      exportTime: new Date().toISOString()
+    };
+    
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `openrtb-bid-data-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const exportRequests = () => {
+    const data = {
+      requests: requests,
+      exportTime: new Date().toISOString()
+    };
+    
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `openrtb-bid-requests-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const exportResponses = () => {
+    const data = {
+      responses: responses,
+      exportTime: new Date().toISOString()
+    };
+    
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `openrtb-bid-responses-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div id="container" style={{ fontFamily: 'Arial, sans-serif', margin: 0, padding: 16 }}>
       <h2>OpenRTB Bid Requests & Responses (React)</h2>
+      
+      {/* Export buttons */}
+      <div style={{ marginBottom: '16px' }}>
+        <button 
+          onClick={exportAllData}
+          style={{ 
+            marginRight: '8px', 
+            padding: '8px 16px', 
+            backgroundColor: '#4CAF50', 
+            color: 'white', 
+            border: 'none', 
+            borderRadius: '4px', 
+            cursor: 'pointer' 
+          }}
+        >
+          Export All Data (JSON)
+        </button>
+        <button 
+          onClick={exportRequests}
+          style={{ 
+            marginRight: '8px', 
+            padding: '8px 16px', 
+            backgroundColor: '#2196F3', 
+            color: 'white', 
+            border: 'none', 
+            borderRadius: '4px', 
+            cursor: 'pointer' 
+          }}
+        >
+          Export Requests (JSON)
+        </button>
+        <button 
+          onClick={exportResponses}
+          style={{ 
+            marginRight: '8px', 
+            padding: '8px 16px', 
+            backgroundColor: '#FF9800', 
+            color: 'white', 
+            border: 'none', 
+            borderRadius: '4px', 
+            cursor: 'pointer' 
+          }}
+        >
+          Export Responses (JSON)
+        </button>
+      </div>
+      
       <div id="bids">
         {requests.map((req, i) => {
           const resp = getMatchingResponse(req.requestId);

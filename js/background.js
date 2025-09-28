@@ -98,22 +98,24 @@ function onDebuggerEvent(source, method, params) {
         // Check if this matches a previously detected OpenRTB request
         const matchedRequest = bidRequests.find(req => req.requestId === params.requestId);
         if (matchedRequest) {
-            bidResponses.push({
+            const response = {
                 url: params.response.url,
                 statusCode: params.response.status,
                 time: Date.now(),
                 requestId: params.requestId,
                 tabId: source.tabId
-            });
+            };
+            
+            bidResponses.push(response);
 
             // Try to get the response body as well
             chrome.debugger.sendCommand(source, "Network.getResponseBody", { requestId: params.requestId }, (result) => {
                 if (!chrome.runtime.lastError && result && result.body) {
                     // Update the stored response with the body if available
-                    const response = bidResponses.find(r => r.requestId === params.requestId);
-                    if (response) {
+                    const responseIndex = bidResponses.findIndex(r => r.requestId === params.requestId);
+                    if (responseIndex !== -1) {
                         // Decode if base64 encoded
-                        response.body = result.base64Encoded ? atob(result.body) : result.body;
+                        bidResponses[responseIndex].body = result.base64Encoded ? atob(result.body) : result.body;
                     }
                 }
             });
