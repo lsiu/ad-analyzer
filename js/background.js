@@ -74,6 +74,7 @@ function onDebuggerEvent(source, method, params) {
                     if (isOpenRTBBidRequestBody(result.postData)) {
                         bidRequestCount++;
                         bidRequests.push({
+                            documentURL: params.documentURL,
                             url: params.request.url,
                             body: result.postData,
                             time: Date.now(),

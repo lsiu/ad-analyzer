@@ -228,7 +228,8 @@ const OpenRTBPanel = () => {
           
           return (
             <div key={i} className="bid" style={{ borderBottom: '1px solid #ccc', marginBottom: 8, paddingBottom: 8 }}>
-              <div><strong>Request #{i + 1}</strong></div>
+              <div><strong>Request #{i + 1} (requestId: {req.requestId})</strong></div>
+              <div>DocumentURL: {req.documentURL}</div>
               <div style={{color: req.url?.includes('adsrvr.org')?'#0000cc':'auto'}}>URL: {req.url}</div>
               <div>Time: {new Date(req.time).toLocaleTimeString()}</div>
               {bidInfo && (
