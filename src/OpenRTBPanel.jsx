@@ -171,8 +171,8 @@ const OpenRTBPanel = () => {
   };
 
   return (
-    <div id="container" style={{ fontFamily: 'Arial, sans-serif', margin: 0, padding: 16 }}>
-      <h2>OpenRTB Bid Requests & Responses (React)</h2>
+    <div id="container" style={{ fontFamily: 'Arial, sans-serif', margin: 0 }}>
+      <h2>OpenRTB Bid Requests & Responses</h2>
       
       {/* Export buttons */}
       <div style={{ marginBottom: '16px' }}>
