@@ -174,7 +174,7 @@ const OpenRTBPanel = () => {
     <div id="container" style={{ fontFamily: 'Arial, sans-serif', margin: 0 }}>
       <h2>OpenRTB Bid Requests & Responses</h2>
       
-      {/* Export buttons */}
+      {/* Export and Clear buttons */}
       <div style={{ marginBottom: '16px' }}>
         <button 
           onClick={exportAllData}
@@ -191,32 +191,18 @@ const OpenRTBPanel = () => {
           Export All Data (JSON)
         </button>
         <button 
-          onClick={exportRequests}
+          onClick={() => { setRequests([]); setResponses([]); }}
           style={{ 
             marginRight: '8px', 
             padding: '8px 16px', 
-            backgroundColor: '#2196F3', 
+            backgroundColor: '#f44336', 
             color: 'white', 
             border: 'none', 
             borderRadius: '4px', 
             cursor: 'pointer' 
           }}
         >
-          Export Requests (JSON)
-        </button>
-        <button 
-          onClick={exportResponses}
-          style={{ 
-            marginRight: '8px', 
-            padding: '8px 16px', 
-            backgroundColor: '#FF9800', 
-            color: 'white', 
-            border: 'none', 
-            borderRadius: '4px', 
-            cursor: 'pointer' 
-          }}
-        >
-          Export Responses (JSON)
+          Clear Data
         </button>
       </div>
       
