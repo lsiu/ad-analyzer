@@ -2,6 +2,42 @@ import json
 import urllib.parse
 import re
 
+def get_request_response_dataframe(data_dir):
+    requests = []
+    responses = []
+    
+    import pandas as pd
+    from glob import glob
+
+    bid_files = glob(data_dir)
+    for bid_file in bid_files:
+        with open(bid_file, 'r', encoding='UTF-8') as f:
+            bid_data = json.load(f)
+            requests.extend(bid_data.get('requests', []))
+            responses.extend(bid_data.get('responses', []))
+
+    df_req  = pd.DataFrame(requests)
+    df_resp = pd.DataFrame(responses)
+
+    return df_req.merge(df_resp, on='requestId', suffixes=('_req', '_resp'), how='outer')
+
+
+def extra_bids_from_response(response):
+    bids = []
+    if 'seatbid' in response:
+        for seat in response['seatbid']:
+            for bid in seat.get('bid', []):
+                bids.append(bid)
+    elif 'bids' in response:  # Rubicon format
+        for bid in response['bids']:
+            bids.append(bid)
+    elif 'bidList' in response:  # Pubmatic format
+        for bid in response['bidList']:
+            bids.append(bid)
+
+    if not bids:
+        return None
+    return bids
 
 def extract_placement_id(imp):
     """
@@ -83,89 +119,3 @@ def extract_demand_source_from_nurl(bid):
     else:
         demand_source = 'unknown_nurl'
     return demand_source
-
-
-def extract_bids_from_responses(responses):
-    """
-    Extract bid information from bid responses
-    """
-    bid_data = []
-    
-    for response in responses:
-        if 'body' not in response or response['statusCode'] != 200:
-            continue
-            
-        try:
-            response_body = json.loads(response['body'])
-        except json.JSONDecodeError:
-            continue
-        
-        # Get request ID to match with requests
-        request_id = response.get('requestId', 'unknown')
-        
-        # Extract bids from seatbid
-        if 'seatbid' in response_body:
-            for seatbid in response_body['seatbid']:
-                if 'bid' in seatbid:
-                    for bid in seatbid['bid']:
-                        # Extract placement ID from bid.impid by matching with request impressions
-                        # We'll need to get this from the corresponding request
-                        impid = bid.get('impid', 'unknown_impid')
-                        bid_price = bid.get('price', 0)
-                        bid_currency = response_body.get('cur', 'USD')
-                        demand_source = extract_demand_source_from_nurl(bid)
-                        adomain = ', '.join(bid.get('adomain', [])) if 'adomain' in bid else 'unknown_adomain'
-                        # Convert epoch time (seconds or ms) to Python datetime object
-                        time_epoch = response.get('time', 0)
-                        # If time is in milliseconds, convert to seconds
-                        if time_epoch > 1e12:
-                            time_epoch = time_epoch // 1000
-                        from datetime import datetime, timezone
-                        date_time = datetime.fromtimestamp(int(time_epoch), tz=timezone.utc)
-                        
-                        bid_data.append({
-                            'request_id': request_id,
-                            'impid': impid,
-                            'bid_price': bid_price,
-                            'bid_currency': bid_currency,
-                            'demand_source': demand_source,
-                            'response_date_time': date_time,
-                            'advertiser_domain': adomain,
-                            'creative_id': bid.get('crid', 'unknown_creative'),
-                            'creative_width': bid.get('w', 0),
-                            'creative_height': bid.get('h', 0)
-                        })
-    
-    return bid_data
-
-
-def extract_placements_from_requests(requests):
-    """
-    Extract placement IDs from bid requests
-    """
-    placement_data = {}
-    
-    for request in requests:
-        if 'body' not in request:
-            continue
-        
-        try:
-            request_body = json.loads(request['body'])
-        except json.JSONDecodeError:
-            continue
-        
-        # Get request ID
-        request_id = request.get('requestId', 'unknown')
-        
-        # Extract impressions
-        if 'imp' in request_body:
-            for imp in request_body['imp']:
-                placement_id = extract_placement_id(imp)
-                imp_id = str(imp.get('id', 'unknown_imp'))
-                
-                # Store mapping from impression ID to placement ID
-                if request_id not in placement_data:
-                    placement_data[request_id] = {}
-                placement_data[request_id][imp_id] = placement_id
-    
-    return placement_data
