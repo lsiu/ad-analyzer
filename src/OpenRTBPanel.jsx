@@ -191,7 +191,16 @@ const OpenRTBPanel = () => {
           Export All Data (JSON)
         </button>
         <button 
-          onClick={() => { setRequests([]); setResponses([]); }}
+          onClick={() => {
+            // Send clear message to background script
+            const port = chrome.runtime.connect({ name: 'devtools' });
+            port.postMessage({ type: 'clearBidData' });
+            port.disconnect();
+            
+            // Clear local state
+            setRequests([]); 
+            setResponses([]);
+          }}
           style={{ 
             marginRight: '8px', 
             padding: '8px 16px', 

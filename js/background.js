@@ -200,6 +200,14 @@ chrome.runtime.onConnect.addListener(function (port) {
         port.onMessage.addListener(function (msg) {
             if (msg.type === 'getBidData') {
                 port.postMessage({ type: 'bidData', data: { requests: bidRequests, responses: bidResponses } });
+            } else if (msg.type === 'clearBidData') {
+                // Clear stored bid requests and responses
+                bidRequests = [];
+                bidResponses = [];
+                bidRequestCount = 0;
+                chrome.action.setBadgeText({ text: '' }); // Clear badge text
+                // Optionally send confirmation back to panel
+                port.postMessage({ type: 'bidDataCleared', success: true });
             }
         });
     }
