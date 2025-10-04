@@ -88,6 +88,13 @@ def extract_placement_id(imp):
     
     return "unknown_placement_id"
 
+def extract_win_notice_url(bid):
+    """
+    Extracts win_notice_url from bid object
+    """
+    win_notice_url = bid.get('nurl', '') or bid.get('ext', {}).get('prebid', {}).get('events', {}).get('win', '')
+    return win_notice_url if win_notice_url else None
+
 
 def extract_demand_source_from_nurl(bid):
     """
@@ -98,8 +105,7 @@ def extract_demand_source_from_nurl(bid):
             domain = 'casalemedia.com'
         return domain
 
-
-    nurl = bid.get('nurl', '')
+    nurl = extract_win_notice_url(bid)
     lurl = bid.get('lurl', '')
     adm = bid.get('adm', '')
     if nurl:
