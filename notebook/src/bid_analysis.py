@@ -115,6 +115,13 @@ def extract_bids_from_responses(responses):
                         bid_currency = response_body.get('cur', 'USD')
                         demand_source = extract_demand_source_from_nurl(bid)
                         adomain = ', '.join(bid.get('adomain', [])) if 'adomain' in bid else 'unknown_adomain'
+                        # Convert epoch time (seconds or ms) to Python datetime object
+                        time_epoch = response.get('time', 0)
+                        # If time is in milliseconds, convert to seconds
+                        if time_epoch > 1e12:
+                            time_epoch = time_epoch // 1000
+                        from datetime import datetime, timezone
+                        date_time = datetime.fromtimestamp(int(time_epoch), tz=timezone.utc)
                         
                         bid_data.append({
                             'request_id': request_id,
@@ -122,6 +129,7 @@ def extract_bids_from_responses(responses):
                             'bid_price': bid_price,
                             'bid_currency': bid_currency,
                             'demand_source': demand_source,
+                            'response_date_time': date_time,
                             'advertiser_domain': adomain,
                             'creative_id': bid.get('crid', 'unknown_creative'),
                             'creative_width': bid.get('w', 0),
