@@ -110,7 +110,7 @@ def extract_bids_from_responses(responses):
                     for bid in seatbid['bid']:
                         # Extract placement ID from bid.impid by matching with request impressions
                         # We'll need to get this from the corresponding request
-                        placement_id = bid.get('impid', 'unknown_placement')
+                        impid = bid.get('impid', 'unknown_impid')
                         bid_price = bid.get('price', 0)
                         bid_currency = response_body.get('cur', 'USD')
                         demand_source = extract_demand_source_from_nurl(bid)
@@ -118,7 +118,7 @@ def extract_bids_from_responses(responses):
                         
                         bid_data.append({
                             'request_id': request_id,
-                            'placement_id': placement_id,
+                            'impid': impid,
                             'bid_price': bid_price,
                             'bid_currency': bid_currency,
                             'demand_source': demand_source,
@@ -153,7 +153,7 @@ def extract_placements_from_requests(requests):
         if 'imp' in request_body:
             for imp in request_body['imp']:
                 placement_id = extract_placement_id(imp)
-                imp_id = imp.get('id', 'unknown_imp')
+                imp_id = str(imp.get('id', 'unknown_imp'))
                 
                 # Store mapping from impression ID to placement ID
                 if request_id not in placement_data:
