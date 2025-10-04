@@ -93,29 +93,29 @@ def extract_demand_source_from_nurl(bid):
     """
     Extracts demand_source from nurl field in bid object
     """
+    def to_root_domain(domain):
+        if domain.endswith('.casalemedia.com'):
+            domain = 'casalemedia.com'
+        return domain
+
+
     nurl = bid.get('nurl', '')
     lurl = bid.get('lurl', '')
     adm = bid.get('adm', '')
     if nurl:
         domain = urllib.parse.urlparse(nurl).netloc
-        if domain.endswith('.casalemedia.com'):
-            domain = 'casalemedia.com'
         demand_source = domain if domain else 'unknown_domain'
     elif lurl:
         domain = urllib.parse.urlparse(lurl).netloc
-        if domain.endswith('.casalemedia.com'):
-            domain = 'casalemedia.com'
         demand_source = domain if domain else 'unknown_domain'
     elif adm:
         # Attempt to extract URL from adm if it contains a tracking pixel or similar
         urls = re.findall(r'https?://[^\s"\']+', adm)
         if urls:
             domain = urllib.parse.urlparse(urls[0]).netloc
-            if domain.endswith('.casalemedia.com'):
-                domain = 'casalemedia.com'
             demand_source = domain if domain else 'unknown_domain'
         else:
-            demand_source = 'unknown_adm'
+            demand_source = 'no_domains_in_adm'
     else:
-        demand_source = 'unknown_nurl'
-    return demand_source
+        demand_source = 'no_domain_in_nurl_lurl_adm'
+    return to_root_domain(demand_source)
