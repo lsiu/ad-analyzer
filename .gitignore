@@ -2,3 +2,5 @@ node_modules/
 dist/
 .qwen/
 data/
+__pycache__/
+*.pyc
