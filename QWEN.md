@@ -78,13 +78,6 @@ Create a distributable ZIP file:
 npm run package
 ```
 
-### Testing Build
-
-Verify build integrity:
-```bash
-npm run test-build
-```
-
 ### Manual Installation in Chrome
 
 1. Build the project: `npm run build`
@@ -220,4 +213,3 @@ The project includes a `docker-compose.yml` for setting up a development environ
 | `npm run watch` | Development build with watch mode |
 | `npm run clean` | Clean dist directory (via rimraf) |
 | `npm run package` | Build and create distributable ZIP |
-| `npm run test-build` | Verify build integrity |

@@ -8,8 +8,7 @@
     "dev": "webpack --config webpack.dev.js",
     "watch": "webpack --config webpack.dev.js --watch",
     "clean": "rimraf dist",
-    "package": "npm run build && cd dist && zip -r ../ad-analyzer-extension.zip .",
-    "test-build": "cd /src && node test-build.js"
+    "package": "npm run build && cd dist && zip -r ../ad-analyzer-extension.zip ."
   },
   "keywords": [
     "chrome-extension",
