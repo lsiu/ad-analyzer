@@ -1,16 +1,8 @@
 /* styles.css - Styles for highlighting ads */
+/* Note: These styles are also defined in js/modules/highlightStyles.js for iframe injection */
 
-/* Ad highlights (red dashed border) */
+/* Ad highlights - using outline for maximum visibility */
 .ad-highlighter-border {
-  border: 2px dashed #ff0000 !important;
-  box-shadow: 0 0 5px rgba(255, 0, 0, 0.3) !important;
-  background-color: rgba(255, 0, 0, 0.05) !important;
-  animation: ad-highlight-pulse 3s infinite;
-}
-
-/* Animation for extra visibility - more subtle */
-@keyframes ad-highlight-pulse {
-  0% { border-color: #ff0000; box-shadow: 0 0 5px rgba(255, 0, 0, 0.3); }
-  50% { border-color: #ff6666; box-shadow: 0 0 8px rgba(255, 0, 0, 0.4); }
-  100% { border-color: #ff0000; box-shadow: 0 0 5px rgba(255, 0, 0, 0.3); }
+  outline: 3px dashed #ff0000 !important;
+  outline-offset: -3px !important;
 }

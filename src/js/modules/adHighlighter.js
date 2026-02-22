@@ -1,15 +1,37 @@
 // js/modules/adHighlighter.js - Ad highlighting functionality
 
 import adSelectors from './adSelectors.js';
+import { HIGHLIGHT_CLASS, STYLE_ID, highlightStyles } from './highlightStyles.js';
+
+// Inject highlight styles into a document
+function injectStyles(doc) {
+  if (!doc) return;
+  
+  // Check if styles already injected
+  if (doc.getElementById(STYLE_ID)) return;
+  
+  const style = doc.createElement('style');
+  style.id = STYLE_ID;
+  style.textContent = highlightStyles;
+  
+  try {
+    (doc.head || doc.documentElement).appendChild(style);
+  } catch (e) {
+    // Ignore injection errors
+  }
+}
 
 // Function to highlight ads
 export function highlightAds(root = document) {
   console.log('=== Ad Highlighter Run ===');
 
+  // Inject styles into main document
+  injectStyles(root);
+
   // Remove existing highlights
-  const existingHighlights = root.querySelectorAll('.ad-highlighter-border');
+  const existingHighlights = root.querySelectorAll(`.${HIGHLIGHT_CLASS}`);
   existingHighlights.forEach(el => {
-    el.classList.remove('ad-highlighter-border');
+    el.classList.remove(HIGHLIGHT_CLASS);
   });
 
   console.log(`Removed ${existingHighlights.length} highlights`);
@@ -25,7 +47,7 @@ export function highlightAds(root = document) {
       }
 
       elements.forEach(el => {
-        if (el.closest('.ad-highlighter-border') !== null) {
+        if (el.closest(`.${HIGHLIGHT_CLASS}`) !== null) {
           return; // Already highlighted
         }
         ads.add(el);
@@ -47,7 +69,10 @@ export function highlightAds(root = document) {
       const link = document.createElement('a');
       link.href = iframeSrc;
       if (link.origin === pageOrigin) {
-        highlightAds(iframe.contentDocument || iframe.contentWindow.document);
+        // Same-origin iframe - inject styles and highlight
+        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+        injectStyles(iframeDoc);
+        highlightAds(iframeDoc);
       }
     } catch (error) {
       // Ignore cross-origin iframes
@@ -59,7 +84,7 @@ export function highlightAds(root = document) {
   allElements.forEach(el => {
     if (el.textContent && el.textContent.trim().toLowerCase() === 'advertisement') {
       const parent = el.parentElement;
-      if (parent && parent.closest('.ad-highlighter-border') === null) {
+      if (parent && parent.closest(`.${HIGHLIGHT_CLASS}`) === null) {
         console.log('Found "Advertisement" text element:', parent);
         ads.add(parent);
       }
@@ -68,8 +93,7 @@ export function highlightAds(root = document) {
 
   // Apply highlighting to all found ads
   ads.forEach(ad => {
-    ad.classList.add('ad-highlighter-border');
-    ad.querySelectorAll('.ad-highlighter-border').forEach(child => child.classList.remove('ad-highlighter-border'));
+    ad.classList.add(HIGHLIGHT_CLASS);
   });
 
   console.log(`Highlighted ${ads.size} ads on the page`);
