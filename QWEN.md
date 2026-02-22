@@ -208,3 +208,7 @@ The project includes a `docker-compose.yml` for setting up a development environ
 | `npm run watch` | Development build with watch mode |
 | `npm run clean` | Clean dist directory (via rimraf) |
 | `npm run package` | Build and create distributable ZIP |
+
+# Rules
+
+* Please do not commit any change unless I explicitly as to do so.
