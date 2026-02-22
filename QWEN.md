@@ -6,18 +6,18 @@ The Ad Analyzer is a Chrome extension (Manifest V3) designed to capture and anal
 
 ## Architecture
 
-The project follows a typical Chrome extension architecture with the following components:
+The project follows a typical Chrome extension architecture with all source code organized under `src/`.
 
 ### Core Components
 
-- **Content Script (`js/content.js`)**: Runs on web pages to detect and highlight ads
-  - Uses `js/modules/adScheduler.js` for periodic detection
-  - Uses `js/modules/messaging.js` for popup communication
-  - Uses `js/modules/adHighlighter.js` for DOM manipulation
-  - Uses `js/modules/adSelectors.js` for ad element identification
-  - Uses `js/modules/adVerification.js` for The Trade Desk ad detection
+- **Content Script (`src/js/content.js`)**: Runs on web pages to detect and highlight ads
+  - Uses `src/js/modules/adScheduler.js` for periodic detection
+  - Uses `src/js/modules/messaging.js` for popup communication
+  - Uses `src/js/modules/adHighlighter.js` for DOM manipulation
+  - Uses `src/js/modules/adSelectors.js` for ad element identification
+  - Uses `src/js/modules/adVerification.js` for The Trade Desk ad detection
 
-- **Background Script (`js/background.js`)**: Monitors OpenRTB bid requests using the Chrome debugger API
+- **Background Script (`src/js/background.js`)**: Monitors OpenRTB bid requests using the Chrome debugger API
   - Attaches to tabs to capture network traffic
   - Identifies OpenRTB-compliant bid requests based on JSON structure (`id` and `imp` fields)
   - Tracks bid request/response pairs using `requestId`
@@ -37,7 +37,7 @@ The project follows a typical Chrome extension architecture with the following c
 
 - **DevTools Integration (`openrtb_devtools.html`, `openrtb_devtools.js`)**: Chrome DevTools panel for advanced analysis
 
-### Styles (`styles.css`)
+### Styles (`src/styles.css`)
 - `.ad-highlighter-border`: Red dashed border for regular ads
 - `.ad-highlighter-trade-border`: Blue dashed border for The Trade Desk ads
 - Includes subtle pulse animations for visibility
@@ -137,30 +137,35 @@ npm run test-build
 ### Code Structure
 ```
 /adAnalyzer/
-├── js/                     # JavaScript modules
-│   ├── content.js          # Content script entry point
-│   ├── background.js       # Background script
-│   └── modules/            # Content script modules
-│       ├── adHighlighter.js
-│       ├── adScheduler.js
-│       ├── adSelectors.js
-│       ├── adVerification.js
-│       └── messaging.js
-├── src/                    # React components
-│   ├── popup.jsx           # Popup UI entry point
-│   ├── PopupApp.jsx        # Main popup component
-│   ├── openrtb_panel.jsx   # DevTools panel entry point
-│   └── OpenRTBPanel.jsx    # OpenRTB bid display component
-├── notebook/               # Jupyter notebooks for analysis
+├── src/                        # All source code
+│   ├── js/                     # JavaScript modules
+│   │   ├── content.js          # Content script entry point
+│   │   ├── background.js       # Background script
+│   │   └── modules/            # Content script modules
+│   │       ├── adHighlighter.js
+│   │       ├── adScheduler.js
+│   │       ├── adSelectors.js
+│   │       ├── adVerification.js
+│   │       └── messaging.js
+│   ├── popup.jsx               # Popup UI entry point
+│   ├── PopupApp.jsx            # Main popup component
+│   ├── openrtb_panel.jsx       # DevTools panel entry point
+│   ├── OpenRTBPanel.jsx        # OpenRTB bid display component
+│   ├── icons/                  # Extension icons (16, 48, 128)
+│   └── styles.css              # Ad highlighting styles
+├── notebook/                   # Jupyter notebooks for analysis
 │   ├── src/
-│   │   └── bid_analysis.py # Python analysis utilities
+│   │   └── bid_analysis.py     # Python analysis utilities
 │   ├── test/
 │   └── analyze_bids.ipynb
-├── icons/                  # Extension icons (16, 48, 128)
-├── dist/                   # Build output directory
-├── webpack*.js             # Webpack configurations
-├── manifest.json           # Chrome extension manifest
-└── styles.css              # Ad highlighting styles
+├── dist/                       # Build output directory
+├── webpack*.js                 # Webpack configurations
+├── manifest.json               # Chrome extension manifest
+├── popup.html                  # Popup HTML template
+├── openrtb_panel.html          # OpenRTB panel HTML template
+├── openrtb_devtools.html       # DevTools HTML template
+├── openrtb_devtools.js         # DevTools script
+└── package.json                # Project dependencies and scripts
 ```
 
 ### Build System

@@ -5,9 +5,9 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   entry: {
-    content: './js/content.js',
+    content: './src/js/content.js',
     popup: './src/popup.jsx',
-    background: './js/background.js',
+    background: './src/js/background.js',
     openrtb_panel: './src/openrtb_panel.jsx'
   },
   output: {
@@ -52,8 +52,8 @@ module.exports = {
       patterns: [
         { from: 'manifest.json', to: '.' },
         { from: 'openrtb_devtools.js', to: '.' },
-        { from: 'icons', to: 'icons' },
-        { from: 'styles.css', to: '.' }
+        { from: 'src/icons', to: 'icons' },
+        { from: 'src/styles.css', to: '.' }
       ]
     })
   ],
