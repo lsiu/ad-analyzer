@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import OpenRTBPanel from './OpenRTBPanel';
+import OpenRTBPanel from './openrtb/OpenRTBPanel';
 
 const PopupApp = () => {
   const [bidRequests, setBidRequests] = useState([]);

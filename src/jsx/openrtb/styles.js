@@ -1,0 +1,30 @@
+// Shared styles for OpenRTB panel components
+
+export const styles = {
+  container: { fontFamily: 'Arial, sans-serif', margin: 0, fontSize: '12px' },
+  buttonBar: { marginBottom: '12px', display: 'flex', gap: '8px' },
+  btn: { padding: '6px 12px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' },
+  btnExport: { backgroundColor: '#4CAF50', color: 'white' },
+  btnClear: { backgroundColor: '#f44336', color: 'white' },
+  btnPrimary: { backgroundColor: '#007bff', color: 'white' },
+  btnSecondary: { backgroundColor: '#6c757d', color: 'white' },
+  table: { width: '100%', borderCollapse: 'collapse', fontSize: '11px' },
+  th: { textAlign: 'left', padding: '8px 6px', borderBottom: '2px solid #ddd', backgroundColor: '#f8f9fa', position: 'sticky', top: 0 },
+  td: { padding: '8px 6px', borderBottom: '1px solid #eee', verticalAlign: 'top' },
+  row: { cursor: 'pointer' },
+  rowExpanded: { backgroundColor: '#f0f7ff' },
+  rowExpandedCell: { padding: '12px', backgroundColor: '#f8f9fa' },
+  badge: { display: 'inline-block', padding: '2px 6px', borderRadius: '10px', fontSize: '10px', fontWeight: 'bold' },
+  badgeSuccess: { backgroundColor: '#d4edda', color: '#155724' },
+  badgeWarning: { backgroundColor: '#fff3cd', color: '#856404' },
+  badgeDanger: { backgroundColor: '#f8d7da', color: '#721c24' },
+  modal: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
+  modalContent: { backgroundColor: 'white', padding: '20px', borderRadius: '8px', maxWidth: '90%', maxHeight: '90%', width: '800px', display: 'flex', flexDirection: 'column' },
+  modalHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexShrink: 0 },
+  modalBody: { background: '#f5f5f5', padding: '12px', overflow: 'auto', fontSize: '11px', borderRadius: '4px', flex: 1, minHeight: 0 },
+  truncate: { maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  emptyState: { padding: '20px', textAlign: 'center', color: '#666' },
+  detailsGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' },
+  detailsText: { fontSize: '10px', marginTop: '4px' },
+  priceHighlight: { fontWeight: 'bold', color: '#28a745' }
+};
