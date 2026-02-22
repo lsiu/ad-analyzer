@@ -24,12 +24,12 @@ The project follows a typical Chrome extension architecture with all source code
   - Updates badge counter with detected bid requests
   - Exposes bid data via long-lived port connection
 
-- **Popup UI (`src/popup.jsx`, `src/PopupApp.jsx`)**: React-based interface for user interaction
+- **Popup UI (`src/jsx/popup.jsx`, `src/jsx/PopupApp.jsx`)**: React-based interface for user interaction
   - Displays ad highlighting controls
   - Includes OpenRTB panel for bid data display
   - Allows refreshing ad detection on current page
 
-- **OpenRTB Panel (`src/openrtb_panel.jsx`, `src/OpenRTBPanel.jsx`)**: Detailed bid analysis UI
+- **OpenRTB Panel (`src/jsx/openrtb_panel.jsx`, `src/jsx/OpenRTBPanel.jsx`)**: Detailed bid analysis UI
   - Displays bid requests and responses in expandable format
   - Extracts bid prices, impression counts, and floor prices
   - Provides export functionality (JSON) for requests, responses, or all data
@@ -37,7 +37,7 @@ The project follows a typical Chrome extension architecture with all source code
 
 - **DevTools Integration (`openrtb_devtools.html`, `openrtb_devtools.js`)**: Chrome DevTools panel for advanced analysis
 
-### Styles (`src/styles.css`)
+### Styles (`src/jsx/styles.css`)
 - `.ad-highlighter-border`: Red dashed border for regular ads
 - `.ad-highlighter-trade-border`: Blue dashed border for The Trade Desk ads
 - Includes subtle pulse animations for visibility
@@ -147,12 +147,18 @@ npm run test-build
 │   │       ├── adSelectors.js
 │   │       ├── adVerification.js
 │   │       └── messaging.js
-│   ├── popup.jsx               # Popup UI entry point
-│   ├── PopupApp.jsx            # Main popup component
-│   ├── openrtb_panel.jsx       # DevTools panel entry point
-│   ├── OpenRTBPanel.jsx        # OpenRTB bid display component
+│   ├── jsx/                    # React components and styles
+│   │   ├── popup.jsx           # Popup UI entry point
+│   │   ├── PopupApp.jsx        # Main popup component
+│   │   ├── openrtb_panel.jsx   # DevTools panel entry point
+│   │   ├── OpenRTBPanel.jsx    # OpenRTB bid display component
+│   │   └── styles.css          # Ad highlighting styles
 │   ├── icons/                  # Extension icons (16, 48, 128)
-│   └── styles.css              # Ad highlighting styles
+│   ├── manifest.json           # Chrome extension manifest
+│   ├── popup.html              # Popup HTML template
+│   ├── openrtb_panel.html      # OpenRTB panel HTML template
+│   ├── openrtb_devtools.html   # DevTools HTML template
+│   └── openrtb_devtools.js     # DevTools script
 ├── notebook/                   # Jupyter notebooks for analysis
 │   ├── src/
 │   │   └── bid_analysis.py     # Python analysis utilities
@@ -160,11 +166,6 @@ npm run test-build
 │   └── analyze_bids.ipynb
 ├── dist/                       # Build output directory
 ├── webpack*.js                 # Webpack configurations
-├── manifest.json               # Chrome extension manifest
-├── popup.html                  # Popup HTML template
-├── openrtb_panel.html          # OpenRTB panel HTML template
-├── openrtb_devtools.html       # DevTools HTML template
-├── openrtb_devtools.js         # DevTools script
 └── package.json                # Project dependencies and scripts
 ```
 

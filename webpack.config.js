@@ -6,9 +6,9 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 module.exports = {
   entry: {
     content: './src/js/content.js',
-    popup: './src/popup.jsx',
+    popup: './src/jsx/popup.jsx',
     background: './src/js/background.js',
-    openrtb_panel: './src/openrtb_panel.jsx'
+    openrtb_panel: './src/jsx/openrtb_panel.jsx'
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
@@ -34,26 +34,26 @@ module.exports = {
   plugins: [
     new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
-      template: './popup.html',
+      template: './src/popup.html',
       filename: 'popup.html',
       chunks: ['popup']
     }),
     new HtmlWebpackPlugin({
-      template: './openrtb_panel.html',
+      template: './src/openrtb_panel.html',
       filename: 'openrtb_panel.html',
       chunks: ['openrtb_panel']
     }),
     new HtmlWebpackPlugin({
-      template: './openrtb_devtools.html',
+      template: './src/openrtb_devtools.html',
       filename: 'openrtb_devtools.html',
       chunks: []
     }),
     new CopyWebpackPlugin({
       patterns: [
-        { from: 'manifest.json', to: '.' },
-        { from: 'openrtb_devtools.js', to: '.' },
+        { from: 'src/manifest.json', to: '.' },
+        { from: 'src/openrtb_devtools.js', to: '.' },
         { from: 'src/icons', to: 'icons' },
-        { from: 'src/styles.css', to: '.' }
+        { from: 'src/jsx/styles.css', to: '.' }
       ]
     })
   ],
