@@ -2,26 +2,22 @@ import React, { useState, useEffect } from 'react';
 import OpenRTBPanel from './openrtb/OpenRTBPanel';
 
 const PopupApp = () => {
-  const [bidRequests, setBidRequests] = useState([]);
-  const [bidResponses, setBidResponses] = useState([]);
   const [status, setStatus] = useState('');
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Function to refresh ad detection
   const handleRefreshAds = () => {
     setIsRefreshing(true);
     setStatus('');
-    
+
     chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
       chrome.tabs.sendMessage(tabs[0].id, { action: "highlightAds" }, function(response) {
-        // Check for runtime errors
         if (chrome.runtime.lastError) {
           console.log("Runtime error:", chrome.runtime.lastError.message);
           setStatus("Error: " + chrome.runtime.lastError.message);
           setIsRefreshing(false);
           return;
         }
-        
+
         if (response && response.status === "success") {
           setStatus("Ads refreshed!");
         } else {
@@ -32,88 +28,104 @@ const PopupApp = () => {
     });
   };
 
-  // Function to fetch bid data from background script
   useEffect(() => {
-    // Connect to background script via port
     const port = chrome.runtime.connect({ name: 'devtools' });
+    port.postMessage({ type: 'getBidData' });
 
-    // Request initial bid data
-    const fetchBidData = () => {
-      port.postMessage({ type: 'getBidData' });
-    };
-
-    // Initial fetch
-    fetchBidData();
-
-    // Listen for bid data from background script
     port.onMessage.addListener(function(response) {
       if (response && response.type === 'bidData') {
-        setBidRequests(response.data.requests);
-        setBidResponses(response.data.responses);
+        port.postMessage({ type: 'getBidData' });
       }
     });
 
-    // Set up a periodic update to get fresh data
-    const intervalId = setInterval(() => {
-      fetchBidData();
-    }, 3000); // Update every 3 seconds
-
-    // Clean up
     return () => {
-      clearInterval(intervalId);
       port.disconnect();
     };
   }, []);
 
   return (
-    <div style={{ 
-      fontFamily: 'Arial, sans-serif' 
-    }}>
-      <h1 style={{ fontSize: '18px', marginTop: 0, color: '#333' }}>Ad Highlighter</h1>
-      <p>Ads on this page are highlighted with red borders.</p>
-      
-      <button 
-        id="refresh" 
-        onClick={handleRefreshAds}
-        disabled={isRefreshing}
-        style={{
-          backgroundColor: isRefreshing ? '#cccccc' : '#4CAF50',
-          border: 'none',
-          color: 'white',
-          padding: '10px 15px',
-          textAlign: 'center',
-          textDecoration: 'none',
-          display: 'inline-block',
-          fontSize: '16px',
-          margin: '4px 2px',
-          cursor: isRefreshing ? 'not-allowed' : 'pointer',
-          borderRadius: '4px'
-        }}
-      >
-        {isRefreshing ? 'Refreshing...' : 'Refresh Ad Detection'}
-      </button>
-      
-      {status ? (
-        <div 
-          id="status" 
-          className={status.includes("Error") ? "status error" : "status success"}
+    <div style={styles.container}>
+      <div style={styles.header}>
+        <div>
+          <h1 style={styles.title}>Ad Highlighter</h1>
+          <p style={styles.description}>Ads on this page are highlighted with red borders.</p>
+        </div>
+        <button
+          id="refresh"
+          onClick={handleRefreshAds}
+          disabled={isRefreshing}
           style={{
-            marginTop: '15px',
-            padding: '10px',
-            borderRadius: '4px',
-            backgroundColor: status.includes("Error") ? '#f2dede' : '#dff0d8',
-            color: status.includes("Error") ? '#a94442' : '#3c763d',
-            display: 'block'
+            ...styles.refreshButton,
+            backgroundColor: isRefreshing ? '#cccccc' : '#4CAF50',
+            cursor: isRefreshing ? 'not-allowed' : 'pointer'
+          }}
+          title="Refresh Ad Detection"
+          aria-label="Refresh Ad Detection"
+        >
+          ↻
+        </button>
+      </div>
+
+      {status && (
+        <div
+          id="status"
+          style={{
+            ...styles.status,
+            ...(status.includes("Error") ? styles.statusError : styles.statusSuccess)
           }}
         >
           {status}
         </div>
-      ) : null}
-      
-      {/* OpenRTB Bid Information Section */}
+      )}
+
       <OpenRTBPanel />
     </div>
   );
+};
+
+const styles = {
+  container: {
+    fontFamily: 'Arial, sans-serif',
+    padding: '12px'
+  },
+  header: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: '8px'
+  },
+  title: {
+    fontSize: '16px',
+    margin: '0 0 4px 0',
+    color: '#333'
+  },
+  description: {
+    fontSize: '12px',
+    margin: 0,
+    color: '#666'
+  },
+  refreshButton: {
+    border: 'none',
+    color: 'white',
+    padding: '8px 12px',
+    fontSize: '18px',
+    borderRadius: '4px',
+    lineHeight: 1
+  },
+  status: {
+    marginTop: '8px',
+    padding: '8px 12px',
+    borderRadius: '4px',
+    fontSize: '12px'
+  },
+  statusSuccess: {
+    backgroundColor: '#dff0d8',
+    color: '#3c763d'
+  },
+  statusError: {
+    backgroundColor: '#f2dede',
+    color: '#a94442'
+  }
 };
 
 export default PopupApp;

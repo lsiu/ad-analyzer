@@ -2,8 +2,11 @@
 
 export const styles = {
   container: { fontFamily: 'Arial, sans-serif', margin: 0, fontSize: '12px' },
-  buttonBar: { marginBottom: '12px', display: 'flex', gap: '8px' },
+  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' },
+  title: { fontSize: '14px', margin: 0 },
+  actionBar: { display: 'flex', gap: '4px' },
   btn: { padding: '6px 12px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' },
+  iconBtn: { padding: '4px 8px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '14px', lineHeight: 1 },
   btnExport: { backgroundColor: '#4CAF50', color: 'white' },
   btnClear: { backgroundColor: '#f44336', color: 'white' },
   btnPrimary: { backgroundColor: '#007bff', color: 'white' },

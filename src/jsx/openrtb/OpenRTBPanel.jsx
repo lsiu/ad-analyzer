@@ -40,9 +40,10 @@ const OpenRTBPanel = () => {
 
   return (
     <div style={styles.container}>
-      <h2 style={{ fontSize: '16px', margin: '0 0 12px 0' }}>OpenRTB Bid Requests & Responses</h2>
-
-      <ActionBar onExport={handleExport} onClear={handleClear} />
+      <div style={styles.header}>
+        <h2 style={styles.title}>OpenRTB Bid Requests & Responses</h2>
+        <ActionBar onExport={handleExport} onClear={handleClear} />
+      </div>
 
       <BidTable
         requests={requests}

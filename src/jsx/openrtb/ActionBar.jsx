@@ -3,12 +3,22 @@ import { styles } from './styles';
 
 export const ActionBar = ({ onExport, onClear }) => {
   return (
-    <div style={styles.buttonBar}>
-      <button onClick={onExport} style={{ ...styles.btn, ...styles.btnExport }}>
-        Export All (JSON)
+    <div style={styles.actionBar}>
+      <button
+        onClick={onExport}
+        style={{ ...styles.iconBtn, ...styles.btnExport }}
+        title="Export All (JSON)"
+        aria-label="Export All (JSON)"
+      >
+        ⬇️
       </button>
-      <button onClick={onClear} style={{ ...styles.btn, ...styles.btnClear }}>
-        Clear Data
+      <button
+        onClick={onClear}
+        style={{ ...styles.iconBtn, ...styles.btnClear }}
+        title="Clear Data"
+        aria-label="Clear Data"
+      >
+        🗑️
       </button>
     </div>
   );
