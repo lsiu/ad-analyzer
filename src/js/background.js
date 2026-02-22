@@ -1,6 +1,5 @@
 // background.js - Monitors OpenRTB bid requests using chrome.debugger API and updates badge
 
-let bidRequestCount = 0;
 let bidRequests = [];
 let bidResponses = [];
 let attachedTabs = new Set(); // Track tabs we're debugging
@@ -17,6 +16,12 @@ function isOpenRTBBidRequestBody(requestBody) {
         console.log("Error parsing potential OpenRTB request:", e.message);
     }
     return false;
+}
+
+// Update badge for a specific tab
+function updateBadgeForTab(tabId) {
+    const count = bidRequests.filter(req => req.tabId === tabId).length;
+    chrome.action.setBadgeText({ text: count > 0 ? count.toString() : '', tabId: tabId });
 }
 
 // Function to attach debugger to a tab
@@ -72,7 +77,6 @@ function onDebuggerEvent(source, method, params) {
                 if (!chrome.runtime.lastError && result && result.postData) {
                     // Check if the request body is OpenRTB
                     if (isOpenRTBBidRequestBody(result.postData)) {
-                        bidRequestCount++;
                         bidRequests.push({
                             documentURL: params.documentURL,
                             url: params.request.url,
@@ -81,9 +85,10 @@ function onDebuggerEvent(source, method, params) {
                             requestId: params.requestId,
                             tabId: source.tabId
                         });
-                        chrome.action.setBadgeText({ text: bidRequestCount.toString() });
+                        // Update badge for this specific tab
+                        updateBadgeForTab(source.tabId);
                     }
-                    
+
                     // Remove from pending requests
                     pendingRequests.delete(params.requestId);
                 }
@@ -154,7 +159,6 @@ function onDebuggerEvent(source, method, params) {
                 if (!chrome.runtime.lastError && result && result.postData) {
                     // Check if the request body is OpenRTB
                     if (isOpenRTBBidRequestBody(result.postData)) {
-                        bidRequestCount++;
                         bidRequests.push({
                             url: pendingRequests.get(params.requestId).url,
                             body: result.postData,
@@ -162,9 +166,10 @@ function onDebuggerEvent(source, method, params) {
                             requestId: params.requestId,
                             tabId: source.tabId
                         });
-                        chrome.action.setBadgeText({ text: bidRequestCount.toString() });
+                        // Update badge for this specific tab
+                        updateBadgeForTab(source.tabId);
                     }
-                    
+
                     // Remove from pending requests
                     pendingRequests.delete(params.requestId);
                 }
@@ -185,6 +190,9 @@ chrome.tabs.onRemoved.addListener((tabId) => {
     if (attachedTabs.has(tabId)) {
         detachDebugger(tabId);
     }
+    // Clear bids for this tab
+    bidRequests = bidRequests.filter(req => req.tabId !== tabId);
+    bidResponses = bidResponses.filter(resp => resp.tabId !== tabId);
 });
 
 // Clean up debugger when extension is disconnected
@@ -197,16 +205,44 @@ chrome.runtime.onSuspend.addListener(() => {
 // Expose bidRequests and bidResponses for devtools using long-lived port
 chrome.runtime.onConnect.addListener(function (port) {
     if (port.name === 'devtools') {
+        // Get the tab that this connection is from
+        const tabId = port.sender.tab?.id;
+
         port.onMessage.addListener(function (msg) {
             if (msg.type === 'getBidData') {
-                port.postMessage({ type: 'bidData', data: { requests: bidRequests, responses: bidResponses } });
+                // Filter bids for the requesting tab
+                const filteredRequests = tabId 
+                    ? bidRequests.filter(req => req.tabId === tabId)
+                    : bidRequests;
+                const filteredResponses = tabId
+                    ? bidResponses.filter(resp => resp.tabId === tabId)
+                    : bidResponses;
+
+                port.postMessage({ 
+                    type: 'bidData', 
+                    data: { 
+                        requests: filteredRequests, 
+                        responses: filteredResponses 
+                    } 
+                });
             } else if (msg.type === 'clearBidData') {
-                // Clear stored bid requests and responses
-                bidRequests = [];
-                bidResponses = [];
-                bidRequestCount = 0;
-                chrome.action.setBadgeText({ text: '' }); // Clear badge text
-                // Optionally send confirmation back to panel
+                if (tabId) {
+                    // Clear only bids for this tab
+                    bidRequests = bidRequests.filter(req => req.tabId !== tabId);
+                    bidResponses = bidResponses.filter(resp => resp.tabId !== tabId);
+                    // Update badge count for this tab
+                    updateBadgeForTab(tabId);
+                } else {
+                    // Clear all bids
+                    bidRequests = [];
+                    bidResponses = [];
+                    // Clear badge for all tabs
+                    chrome.tabs.query({}, (tabs) => {
+                        tabs.forEach(tab => {
+                            chrome.action.setBadgeText({ text: '', tabId: tab.id });
+                        });
+                    });
+                }
                 port.postMessage({ type: 'bidDataCleared', success: true });
             }
         });
