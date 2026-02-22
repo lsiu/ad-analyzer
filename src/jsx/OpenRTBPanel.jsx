@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 const OpenRTBPanel = () => {
   const [requests, setRequests] = useState([]);
   const [responses, setResponses] = useState([]);
   const [expandedRow, setExpandedRow] = useState(null);
   const [viewingJson, setViewingJson] = useState(null);
+  
+  const modalRef = useRef(null);
+  const scrollPosRef = useRef({ x: 0, y: 0 });
 
   // Connect to background script to fetch bid data
   useEffect(() => {
@@ -19,14 +22,28 @@ const OpenRTBPanel = () => {
     });
 
     const intervalId = setInterval(() => {
-      port.postMessage({ type: 'getBidData' });
+      // Only refresh if modal is not open
+      if (!viewingJson) {
+        port.postMessage({ type: 'getBidData' });
+      }
     }, 2000);
 
     return () => {
       clearInterval(intervalId);
       port.disconnect();
     };
-  }, []);
+  }, [viewingJson]);
+
+  // Save/restore scroll position when modal opens/closes
+  useEffect(() => {
+    if (viewingJson) {
+      // Modal opened - save scroll position
+      const modalEl = modalRef.current;
+      if (modalEl) {
+        scrollPosRef.current = { x: modalEl.scrollLeft, y: modalEl.scrollTop };
+      }
+    }
+  }, [viewingJson]);
 
   const formatJson = (str) => {
     try {
@@ -157,7 +174,9 @@ const OpenRTBPanel = () => {
     badgeDanger: { backgroundColor: '#f8d7da', color: '#721c24' },
     badgeInfo: { backgroundColor: '#d1ecf1', color: '#0c5460' },
     modal: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
-    modalContent: { backgroundColor: 'white', padding: '20px', borderRadius: '8px', maxWidth: '90%', maxHeight: '90%', overflow: 'auto' },
+    modalContent: { backgroundColor: 'white', padding: '20px', borderRadius: '8px', maxWidth: '90%', maxHeight: '90%', width: '800px', display: 'flex', flexDirection: 'column' },
+    modalHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexShrink: 0 },
+    modalBody: { background: '#f5f5f5', padding: '12px', overflow: 'auto', fontSize: '11px', borderRadius: '4px', flex: 1, minHeight: 0 },
     truncate: { maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }
   };
 
@@ -171,19 +190,40 @@ const OpenRTBPanel = () => {
     return <span style={{...styles.badge, ...styles.badgeSuccess}}>{bidCount} Bid{bidCount > 1 ? 's' : ''}</span>;
   };
 
-  const JsonModal = ({ data, onClose, title }) => (
-    <div style={styles.modal} onClick={onClose}>
-      <div style={styles.modalContent} onClick={e => e.stopPropagation()}>
-        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px'}}>
-          <h3 style={{margin: 0}}>{title}</h3>
-          <button onClick={onClose} style={{...styles.btn, backgroundColor: '#6c757d', color: 'white'}}>✕ Close</button>
+  const JsonModal = ({ data, onClose, title }) => {
+    const preRef = useRef(null);
+
+    useEffect(() => {
+      // Restore scroll position after content renders
+      if (preRef.current) {
+        preRef.current.scrollLeft = scrollPosRef.current.x;
+        preRef.current.scrollTop = scrollPosRef.current.y;
+      }
+    }, []);
+
+    const handleScroll = (e) => {
+      // Save scroll position on scroll
+      scrollPosRef.current = { x: e.target.scrollLeft, y: e.target.scrollTop };
+    };
+
+    return (
+      <div style={styles.modal} onClick={onClose}>
+        <div style={styles.modalContent} onClick={e => e.stopPropagation()}>
+          <div style={styles.modalHeader}>
+            <h3 style={{margin: 0}}>{title}</h3>
+            <button onClick={onClose} style={{...styles.btn, backgroundColor: '#6c757d', color: 'white'}}>✕ Close</button>
+          </div>
+          <pre 
+            ref={preRef}
+            onScroll={handleScroll}
+            style={styles.modalBody}
+          >
+            {formatJson(data)}
+          </pre>
         </div>
-        <pre style={{background: '#f5f5f5', padding: '12px', overflow: 'auto', maxHeight: '70vh', fontSize: '11px', borderRadius: '4px'}}>
-          {formatJson(data)}
-        </pre>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div style={styles.container}>
