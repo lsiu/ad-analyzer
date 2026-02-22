@@ -4,7 +4,7 @@
 const adSelectors = [
   // Google AdSense (more specific)
   'iframe[id^=google_ads]',
-  
+
   // Common ad networks (exact matches)
   'iframe[src*="doubleclick.net"]',
   'iframe[src*="googlesyndication.com"]',
@@ -12,10 +12,6 @@ const adSelectors = [
   'iframe[src*="amazon-adsystem.com"]',
   'iframe[src*="ads.pubmatic.com"]',
   'iframe[src*="adnxs.com"]',
-  
-  // The Trade Desk
-  'iframe[src*="adsrvr.org"]',
-  '[src*="adsrvr.org"]',
 
   // Reddit ads
   'shreddit-ad-post',

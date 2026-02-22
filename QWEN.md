@@ -15,7 +15,6 @@ The project follows a typical Chrome extension architecture with all source code
   - Uses `src/js/modules/messaging.js` for popup communication
   - Uses `src/js/modules/adHighlighter.js` for DOM manipulation
   - Uses `src/js/modules/adSelectors.js` for ad element identification
-  - Uses `src/js/modules/adVerification.js` for The Trade Desk ad detection
 
 - **Background Script (`src/js/background.js`)**: Monitors OpenRTB bid requests using the Chrome debugger API
   - Attaches to tabs to capture network traffic
@@ -38,9 +37,7 @@ The project follows a typical Chrome extension architecture with all source code
 - **DevTools Integration (`openrtb_devtools.html`, `openrtb_devtools.js`)**: Chrome DevTools panel for advanced analysis
 
 ### Styles (`src/jsx/styles.css`)
-- `.ad-highlighter-border`: Red dashed border for regular ads
-- `.ad-highlighter-trade-border`: Blue dashed border for The Trade Desk ads
-- Includes subtle pulse animations for visibility
+- `.ad-highlighter-border`: Red dashed border for ads with subtle pulse animation
 
 ## Building and Running
 
@@ -88,13 +85,11 @@ npm run package
 ## Key Features
 
 ### Ad Highlighting
-- Automatically detects and highlights ads on web pages with red borders
-- Differentiates between regular ads and The Trade Desk ads (highlighted in blue)
+- Automatically detects and highlights ads on web pages with red dashed borders
 - Uses periodic detection to refresh ad identification
 - Supports iframe traversal for nested ads
 - Detects ads by:
   - Known ad network iframes (Google, Amazon, DoubleClick, etc.)
-  - The Trade Desk domains (`adsrvr.org`)
   - Reddit ad posts (`shreddit-ad-post`)
   - Taboola containers (`.trc_related_container`)
   - Elements containing "Advertisement" text
