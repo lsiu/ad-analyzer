@@ -2,18 +2,19 @@
 
 import adSelectors from './adSelectors.js';
 import { HIGHLIGHT_CLASS, STYLE_ID, highlightStyles } from './highlightStyles.js';
+import { log, debug } from './logger.js';
 
 // Inject highlight styles into a document
 function injectStyles(doc) {
   if (!doc) return;
-  
+
   // Check if styles already injected
   if (doc.getElementById(STYLE_ID)) return;
-  
+
   const style = doc.createElement('style');
   style.id = STYLE_ID;
   style.textContent = highlightStyles;
-  
+
   try {
     (doc.head || doc.documentElement).appendChild(style);
   } catch (e) {
@@ -23,7 +24,7 @@ function injectStyles(doc) {
 
 // Function to highlight ads
 export function highlightAds(root = document) {
-  console.log('=== Ad Highlighter Run ===');
+  log('=== Ad Highlighter Run ===');
 
   // Inject styles into main document
   injectStyles(root);
@@ -34,7 +35,7 @@ export function highlightAds(root = document) {
     el.classList.remove(HIGHLIGHT_CLASS);
   });
 
-  console.log(`Removed ${existingHighlights.length} highlights`);
+  log(`Removed ${existingHighlights.length} highlights`);
 
   // Find and highlight ads
   const ads = new Set();
@@ -43,7 +44,7 @@ export function highlightAds(root = document) {
     try {
       const elements = root.querySelectorAll(selector);
       if (elements.length > 0) {
-        console.log(`Selector "${selector}" matched ${elements.length} elements`);
+        log(`Selector "${selector}" matched ${elements.length} elements`);
       }
 
       elements.forEach(el => {
@@ -53,7 +54,7 @@ export function highlightAds(root = document) {
         ads.add(el);
       });
     } catch (e) {
-      console.debug('Invalid selector:', selector);
+      debug('Invalid selector:', selector);
     }
   });
 
@@ -85,7 +86,7 @@ export function highlightAds(root = document) {
     if (el.textContent && el.textContent.trim().toLowerCase() === 'advertisement') {
       const parent = el.parentElement;
       if (parent && parent.closest(`.${HIGHLIGHT_CLASS}`) === null) {
-        console.log('Found "Advertisement" text element:', parent);
+        log('Found "Advertisement" text element:', parent);
         ads.add(parent);
       }
     }
@@ -96,6 +97,6 @@ export function highlightAds(root = document) {
     ad.classList.add(HIGHLIGHT_CLASS);
   });
 
-  console.log(`Highlighted ${ads.size} ads on the page`);
-  console.log('=== End Run ===');
+  log(`Highlighted ${ads.size} ads on the page`);
+  log('=== End Run ===');
 }

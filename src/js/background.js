@@ -1,5 +1,7 @@
 // background.js - Monitors OpenRTB bid requests using chrome.debugger API and updates badge
 
+import { log, error } from './modules/logger.js';
+
 let bidRequests = [];
 let bidResponses = [];
 let attachedTabs = new Set(); // Track tabs we're debugging
@@ -13,7 +15,7 @@ function isOpenRTBBidRequestBody(requestBody) {
         const json = JSON.parse(requestBody);
         return json.id && json.imp && Array.isArray(json.imp);
     } catch (e) {
-        console.log("Error parsing potential OpenRTB request:", e.message);
+        error("Error parsing potential OpenRTB request:", e.message);
     }
     return false;
 }
@@ -30,12 +32,12 @@ function attachDebugger(tabId) {
 
     chrome.debugger.attach({ tabId: tabId }, "1.0", () => {
         if (chrome.runtime.lastError) {
-            console.error("Failed to attach debugger:", chrome.runtime.lastError.message);
+            error("Failed to attach debugger:", chrome.runtime.lastError.message);
             return;
         }
 
         attachedTabs.add(tabId);
-        console.log("Debugger attached to tab:", tabId);
+        log("Debugger attached to tab:", tabId);
 
         // Enable network domain to receive network events
         chrome.debugger.sendCommand({ tabId: tabId }, "Network.enable");
@@ -51,7 +53,7 @@ function detachDebugger(tabId) {
 
     chrome.debugger.detach({ tabId: tabId }, () => {
         attachedTabs.delete(tabId);
-        console.log("Debugger detached from tab:", tabId);
+        log("Debugger detached from tab:", tabId);
     });
 }
 
@@ -111,7 +113,7 @@ function onDebuggerEvent(source, method, params) {
                 requestId: params.requestId,
                 tabId: source.tabId
             };
-            
+
             bidResponses.push(response);
 
             // Try to get the response body as well
@@ -141,7 +143,7 @@ function onDebuggerEvent(source, method, params) {
                 }
             });
         }
-        
+
         // Remove from pending if still there
         if (pendingRequests.has(params.requestId)) {
             pendingRequests.delete(params.requestId);
@@ -211,19 +213,19 @@ chrome.runtime.onConnect.addListener(function (port) {
         port.onMessage.addListener(function (msg) {
             if (msg.type === 'getBidData') {
                 // Filter bids for the requesting tab
-                const filteredRequests = tabId 
+                const filteredRequests = tabId
                     ? bidRequests.filter(req => req.tabId === tabId)
                     : bidRequests;
                 const filteredResponses = tabId
                     ? bidResponses.filter(resp => resp.tabId === tabId)
                     : bidResponses;
 
-                port.postMessage({ 
-                    type: 'bidData', 
-                    data: { 
-                        requests: filteredRequests, 
-                        responses: filteredResponses 
-                    } 
+                port.postMessage({
+                    type: 'bidData',
+                    data: {
+                        requests: filteredRequests,
+                        responses: filteredResponses
+                    }
                 });
             } else if (msg.type === 'clearBidData') {
                 if (tabId) {
